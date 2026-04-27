@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credai — UX Design Directions</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #F0F2F5; color: #1A1A1A; }
+
+  /* ── Navigation ── */
+  .nav { position: sticky; top: 0; z-index: 100; background: #1A1A1A; color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .nav h1 { font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .nav-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tab-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #ccc; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .tab-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .tab-btn.active { background: #fff; color: #1A1A1A; border-color: #fff; }
+
+  /* ── Direction Panels ── */
+  .direction { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+  .direction.active { display: block; }
+  .direction-header { margin-bottom: 24px; }
+  .direction-header h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .direction-header p { font-size: 13px; color: #6B7280; }
+  .screens-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .screen { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .screen-label { padding: 10px 16px; background: #F8F9FA; border-bottom: 1px solid #E2E8F0; font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; }
+  .screen-body { padding: 0; }
+
+  /* ── Shared Mock Chrome ── */
+  .mock-browser { background: #E8EAED; padding: 8px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #D1D5DB; }
+  .mock-dots { display: flex; gap: 4px; }
+  .mock-dots span { width: 8px; height: 8px; border-radius: 50%; }
+  .mock-dots span:nth-child(1) { background: #FC5F57; }
+  .mock-dots span:nth-child(2) { background: #FDBC2C; }
+  .mock-dots span:nth-child(3) { background: #33C748; }
+  .mock-url { flex: 1; background: #fff; border-radius: 4px; padding: 3px 8px; font-size: 11px; color: #9CA3AF; }
+
+  /* ════════════════════════════════════════════
+     DIRECTION A — Structured Authority
+  ════════════════════════════════════════════ */
+  .da { --primary: #1B6B3A; --primary-light: #E8F5EE; --accent: #C41E3A; --border: #D1D5DB; --surface: #F8FAFB; }
+
+  .da-header { background: var(--primary); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+  .da-logo { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; }
+  .da-user { font-size: 12px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
+  .da-user::before { content: ''; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.3); display: inline-block; }
+
+  .da-steprail { background: #fff; border-bottom: 2px solid var(--border); padding: 0 24px; overflow-x: auto; display: flex; align-items: stretch; }
+  .da-step { display: flex; align-items: center; gap: 8px; padding: 12px 16px; font-size: 11px; font-weight: 500; color: #9CA3AF; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; cursor: pointer; }
+  .da-step.done { color: var(--primary); }
+  .da-step.done .da-step-num { background: var(--primary); color: #fff; }
+  .da-step.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .da-step.active .da-step-num { background: var(--primary); color: #fff; }
+  .da-step-num { width: 20px; height: 20px; border-radius: 50%; background: #E5E7EB; color: #9CA3AF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .da-step.done .da-step-num::before { content: '✓'; }
+
+  .da-content { background: var(--surface); padding: 20px 24px; min-height: 320px; }
+  .da-step-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .da-step-sub { font-size: 12px; color: #6B7280; margin-bottom: 16px; }
+
+  .da-checklist { background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+  .da-checklist-header { padding: 10px 14px; background: var(--primary-light); border-bottom: 1px solid #C6E0CE; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .da-checklist-title { font-size: 12px; font-weight: 600; color: var(--primary); }
+  .da-checklist-toggle { font-size: 11px; color: var(--primary); }
+  .da-checklist-body { padding: 10px 14px; }
+  .da-doc-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 11px; color: #374151; border-bottom: 1px solid #F3F4F6; }
+  .da-doc-item:last-child { border-bottom: none; }
+  .da-doc-check { width: 14px; height: 14px; border: 1.5px solid #D1D5DB; border-radius: 3px; flex-shrink: 0; }
+  .da-doc-check.done { background: var(--primary); border-color: var(--primary); }
+  .da-doc-req { margin-left: auto; font-size: 9px; color: var(--accent); font-weight: 600; }
+
+  .da-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .da-card-title { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #F3F4F6; }
+  .da-form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .da-form-row.two { grid-template-columns: 1fr 1fr; }
+  .da-form-row.one { grid-template-columns: 1fr; }
+  .da-field label { display: block; font-size: 10px; font-weight: 500; color: #374151; margin-bottom: 3px; }
+  .da-field label span { color: var(--accent); }
+  .da-field input, .da-field select { width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 5px; font-size: 11px; color: #1A1A1A; background: #fff; }
+  .da-field input.error { border-color: #DC2626; background: #FEF2F2; }
+  .da-field .helper { font-size: 9px; color: #DC2626; margin-top: 2px; }
+
+  .da-upload { border: 1.5px dashed #D1D5DB; border-radius: 6px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; background: #FAFAFA; }
+  .da-upload-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .da-upload-text { font-size: 10px; color: #6B7280; }
+  .da-upload-text strong { display: block; font-size: 11px; color: #374151; margin-bottom: 1px; }
+  .da-upload-btn { margin-left: auto; padding: 5px 10px; background: var(--primary); color: #fff; border: none; border-radius: 5px; font-size: 10px; font-weight: 500; cursor: pointer; flex-shrink: 0; }
+
+  .da-upload.uploaded { border-color: #16A34A; background: #F0FDF4; }
+  .da-upload.uploaded .da-upload-icon { background: #DCFCE7; }
+  .da-file-chip { display: flex; align-items: center; gap: 6px; }
+  .da-file-chip .name { font-size: 11px; font-weight: 500; color: #16A34A; }
+  .da-file-chip .actions { font-size: 10px; color: #6B7280; display: flex; gap: 8px; }
+  .da-file-chip .actions a { color: #1B6B3A; cursor: pointer; text-decoration: none; }
+
+  .da-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+  .da-badge.verified { background: #DCFCE7; color: #16A34A; }
+  .da-badge.pending { background: #FEF9C3; color: #D97706; }
+  .da-badge.error { background: #FEE2E2; color: #DC2626; }
+
+  .da-footer { background: #fff; border-top: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .da-btn-secondary { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: #fff; font-size: 12px; font-weight: 500; cursor: pointer; color: #374151; }
+  .da-btn-primary { padding: 8px 20px; border: none; border-radius: 6px; background: var(--primary); color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .da-autosave { font-size: 10px; color: #9CA3AF; display: flex; align-items: center; gap: 4px; }
+  .da-autosave::before { content: '✓'; color: #16A34A; font-weight: 700; }
+
+  /* ════════════════════════════════════════════
+     DIRECTION B — Clean Minimal
+  ════════════════════════════════════════════ */
+  .db { --primary: #166534; --primary-light: #DCFCE7; --accent: #B91C1C; --border: #E5E7EB; --surface: #FAFAFA; }
+
+  .db-header { background: #fff; border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+  .db-logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .db-logo-mark { width: 32px; height: 32px; border-radius: 6px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 800; }
+  .db-logo-text { font-size: 14px; font-weight: 700; }
+  .db-logo-sub { font-size: 10px; color: #9CA3AF; display: block; line-height: 1; }
+  .db-user-pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer; }
+  .db-user-avatar { width: 20px; height: 20px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  .db-progress-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 16px 32px; }
+  .db-progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .db-progress-label span { font-size: 11px; font-weight: 600; color: var(--primary); }
+  .db-progress-label small { font-size: 11px; color: #9CA3AF; }
+  .db-progress-track { height: 4px; background: #E5E7EB; border-radius: 2px; overflow: hidden; }
+  .db-progress-fill { height: 100%; width: 33%; background: var(--primary); border-radius: 2px; }
+  .db-steps-dots { display: flex; gap: 0; margin-top: 10px; overflow-x: auto; }
+  .db-dot { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 40px; }
+  .db-dot-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #E5E7EB; background: #fff; font-size: 10px; font-weight: 600; color: #9CA3AF; display: flex; align-items: center; justify-content: center; }
+  .db-dot.done .db-dot-circle { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .db-dot.active .db-dot-circle { border-color: var(--primary); background: #fff; color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .db-dot-line { flex: 1; height: 2px; background: #E5E7EB; margin-top: -14px; z-index: -1; }
+  .db-dot.done + .db-dot .db-dot-line { background: var(--primary); }
+  .db-dot-label { font-size: 9px; color: #9CA3AF; text-align: center; font-weight: 500; }
+  .db-dot.active .db-dot-label { color: var(--primary); font-weight: 600; }
+
+  .db-content { padding: 24px 32px; background: var(--surface); }
+  .db-step-header { margin-bottom: 20px; }
+  .db-step-num-tag { display: inline-block; padding: 2px 8px; background: var(--primary-light); color: var(--primary); font-size: 10px; font-weight: 700; border-radius: 4px; margin-bottom: 6px; }
+  .db-step-title { font-size: 18px; font-weight: 700; }
+  .db-step-sub { font-size: 12px; color: #6B7280; margin-top: 2px; }
+
+  .db-accordion { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+  .db-accordion-trigger { padding: 12px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .db-accordion-trigger-left { display: flex; align-items: center; gap: 8px; }
+  .db-at-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .db-at-title { font-size: 12px; font-weight: 600; }
+  .db-at-sub { font-size: 10px; color: #9CA3AF; }
+  .db-at-count { padding: 3px 8px; background: var(--primary-light); color: var(--primary); border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .db-accordion-body { padding: 12px 16px; border-top: 1px solid var(--border); background: #FAFAFA; }
+  .db-doc-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 11px; }
+  .db-doc-icon { width: 16px; height: 16px; border-radius: 3px; background: #E5E7EB; flex-shrink: 0; }
+  .db-doc-name { flex: 1; color: #374151; }
+  .db-doc-badge { font-size: 9px; font-weight: 600; color: var(--accent); }
+
+  .db-section-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .db-section-title { font-size: 12px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .db-form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .db-form-grid.two { grid-template-columns: 1fr 1fr; }
+  .db-form-grid.one { grid-template-columns: 1fr; }
+  .db-field label { font-size: 11px; font-weight: 500; color: #374151; display: block; margin-bottom: 4px; }
+  .db-field label .req { color: var(--accent); margin-left: 1px; }
+  .db-field input, .db-field select { width: 100%; padding: 7px 10px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 12px; }
+  .db-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  .db-field .verify-row { display: flex; gap: 6px; }
+  .db-field .verify-row input { flex: 1; }
+  .db-verify-btn { padding: 7px 10px; border: 1px solid var(--primary); border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--primary); background: #fff; cursor: pointer; white-space: nowrap; }
+
+  .db-upload-zone { border: 1.5px dashed #D1D5DB; border-radius: 8px; padding: 12px; text-align: center; background: #FAFAFA; cursor: pointer; }
+  .db-upload-zone:hover { border-color: var(--primary); background: var(--primary-light); }
+  .db-upload-zone p { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+  .db-upload-zone strong { font-size: 12px; color: #374151; display: block; }
+  .db-uploaded-chip { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #86EFAC; border-radius: 8px; background: #F0FDF4; }
+  .db-uc-icon { color: #16A34A; font-size: 14px; }
+  .db-uc-name { font-size: 11px; font-weight: 500; color: #16A34A; flex: 1; }
+  .db-uc-actions { display: flex; gap: 8px; font-size: 10px; }
+  .db-uc-actions a { color: var(--primary); cursor: pointer; text-decoration: none; }
+  .db-uc-actions a.del { color: #DC2626; }
+
+  .db-footer { background: #fff; border-top: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .db-save-chip { font-size: 10px; color: #9CA3AF; }
+  .db-save-chip span { color: #16A34A; font-weight: 600; }
+  .db-btn-ghost { padding: 8px 16px; background: transparent; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 500; color: #374151; cursor: pointer; }
+  .db-btn-solid { padding: 8px 20px; background: var(--primary); border: none; border-radius: 6px; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; }
+
+  /* ════════════════════════════════════════════
+     DIRECTION C — Bold Dashboard
+  ════════════════════════════════════════════ */
+  .dc { --primary: #15803D; --accent: #DC2626; --sidebar-bg: #0F1F14; --surface: #F3F4F6; }
+
+  .dc-shell { display: flex; height: 500px; overflow: hidden; }
+  .dc-sidebar { width: 180px; background: var(--sidebar-bg); color: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+  .dc-sidebar-logo { padding: 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .dc-sidebar-logo .mark { font-size: 13px; font-weight: 800; color: #4ADE80; }
+  .dc-sidebar-logo .sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .dc-sidebar-steps { flex: 1; padding: 12px 0; overflow-y: auto; }
+  .dc-sidebar-step { display: flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.1s; }
+  .dc-sidebar-step:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); }
+  .dc-sidebar-step.done { color: rgba(255,255,255,0.7); }
+  .dc-sidebar-step.active { background: rgba(74,222,128,0.1); color: #4ADE80; border-right: 2px solid #4ADE80; }
+  .dc-step-icon { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .dc-sidebar-step.done .dc-step-icon { background: rgba(74,222,128,0.2); border-color: #4ADE80; color: #4ADE80; }
+  .dc-sidebar-progress { padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .dc-prog-label { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .dc-prog-track { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .dc-prog-fill { height: 100%; width: 25%; background: #4ADE80; border-radius: 2px; }
+
+  .dc-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .dc-top-bar { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 0 20px; height: 48px; display: flex; align-items: center; justify-content: space-between; }
+  .dc-breadcrumb { font-size: 11px; color: #9CA3AF; }
+  .dc-breadcrumb strong { color: #1A1A1A; }
+  .dc-top-actions { display: flex; align-items: center; gap: 10px; }
+  .dc-save-badge { font-size: 10px; color: #16A34A; background: #F0FDF4; padding: 3px 8px; border-radius: 10px; font-weight: 500; }
+
+  .dc-content { flex: 1; overflow-y: auto; padding: 16px 20px; background: var(--surface); }
+  .dc-section { background: #fff; border-radius: 10px; border: 1px solid #E5E7EB; margin-bottom: 14px; overflow: hidden; }
+  .dc-section-header { padding: 12px 16px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 8px; }
+  .dc-section-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+  .dc-section-title { font-size: 12px; font-weight: 700; color: #1A1A1A; flex: 1; }
+  .dc-section-complete { font-size: 10px; color: #16A34A; font-weight: 600; }
+  .dc-section-body { padding: 14px 16px; }
+  .dc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .dc-grid.two { grid-template-columns: repeat(2, 1fr); }
+  .dc-grid.one { grid-template-columns: 1fr; }
+  .dc-field label { font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
+  .dc-field label .req { color: var(--accent); }
+  .dc-field input, .dc-field select { width: 100%; padding: 7px 10px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 11px; color: #1A1A1A; }
+  .dc-field input:focus { outline: none; border-color: var(--primary); }
+
+  .dc-upload-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #E5E7EB; border-radius: 6px; background: #FAFAFA; }
+  .dc-upload-label { font-size: 11px; color: #374151; flex: 1; }
+  .dc-upload-label span { color: var(--accent); font-size: 9px; font-weight: 600; margin-left: 4px; }
+  .dc-upload-status { font-size: 10px; }
+  .dc-upload-status.required { color: #9CA3AF; }
+  .dc-upload-status.done { color: #16A34A; font-weight: 600; }
+  .dc-upload-btn-sm { padding: 4px 10px; background: var(--primary); color: #fff; border: none; border-radius: 4px; font-size: 10px; font-weight: 500; cursor: pointer; }
+
+  .dc-footer { background: #fff; border-top: 1px solid #E5E7EB; padding: 12px 20px; display: flex; justify-content: space-between; }
+  .dc-btn-back { padding: 7px 14px; border: 1px solid #E5E7EB; border-radius: 6px; background: #fff; font-size: 11px; font-weight: 500; color: #374151; cursor: pointer; }
+  .dc-btn-next { padding: 7px 18px; background: var(--primary); border: none; border-radius: 6px; font-size: 11px; font-weight: 600; color: #fff; cursor: pointer; }
+
+  /* ════════════════════════════════════════════
+     DIRECTION D — Staff Review Dashboard
+  ════════════════════════════════════════════ */
+  .dd { --primary: #15803D; --accent: #DC2626; }
+
+  .dd-shell { display: flex; height: 500px; background: #F9FAFB; overflow: hidden; }
+  .dd-sidebar { width: 200px; background: #fff; border-right: 1px solid #E5E7EB; display: flex; flex-direction: column; }
+  .dd-sidebar-header { padding: 14px 16px; border-bottom: 1px solid #E5E7EB; }
+  .dd-sidebar-logo { font-size: 13px; font-weight: 800; color: var(--primary); }
+  .dd-sidebar-role { font-size: 10px; color: #9CA3AF; margin-top: 2px; }
+  .dd-sidebar-nav { flex: 1; padding: 8px 0; }
+  .dd-nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 11px; font-weight: 500; color: #6B7280; cursor: pointer; border-radius: 0; }
+  .dd-nav-item:hover { background: #F9FAFB; }
+  .dd-nav-item.active { background: #F0FDF4; color: var(--primary); font-weight: 600; }
+  .dd-nav-icon { width: 16px; height: 16px; border-radius: 3px; background: currentColor; opacity: 0.2; flex-shrink: 0; }
+  .dd-nav-badge { margin-left: auto; padding: 1px 6px; background: var(--accent); color: #fff; border-radius: 10px; font-size: 9px; font-weight: 700; }
+
+  .dd-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .dd-top { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .dd-top h2 { font-size: 14px; font-weight: 700; }
+  .dd-top-actions { display: flex; gap: 8px; }
+  .dd-filter-btn { padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: #fff; font-size: 11px; color: #374151; cursor: pointer; }
+  .dd-filter-btn.active-filter { border-color: var(--primary); color: var(--primary); background: #F0FDF4; }
+
+  .dd-body { flex: 1; overflow: auto; }
+  .dd-table { width: 100%; border-collapse: collapse; }
+  .dd-table th { background: #F9FAFB; padding: 8px 14px; text-align: left; font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+  .dd-table td { padding: 10px 14px; border-bottom: 1px solid #F3F4F6; font-size: 11px; vertical-align: middle; }
+  .dd-table tr:hover td { background: #F9FAFB; }
+  .dd-table tr.selected td { background: #F0FDF4; }
+  .dd-firm-name { font-weight: 600; color: #1A1A1A; }
+  .dd-firm-type { font-size: 10px; color: #9CA3AF; margin-top: 1px; }
+  .dd-type-badge { padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .dd-type-badge.ordinary { background: #EFF6FF; color: #1D4ED8; }
+  .dd-type-badge.associate { background: #FFF7ED; color: #C2410C; }
+  .dd-type-badge.rera { background: #FAF5FF; color: #7C3AED; }
+  .dd-status-badge { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .dd-status-badge.pending { background: #FEF9C3; color: #A16207; }
+  .dd-status-badge.review { background: #EFF6FF; color: #1D4ED8; }
+  .dd-status-badge.approved { background: #F0FDF4; color: #16A34A; }
+  .dd-status-badge.rejected { background: #FEF2F2; color: #DC2626; }
+  .dd-verify-group { display: flex; gap: 4px; }
+  .dd-vchip { padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+  .dd-vchip.ok { background: #DCFCE7; color: #16A34A; }
+  .dd-vchip.fail { background: #FEE2E2; color: #DC2626; }
+  .dd-vchip.pend { background: #FEF9C3; color: #D97706; }
+  .dd-action-btn { padding: 4px 10px; background: var(--primary); color: #fff; border: none; border-radius: 4px; font-size: 10px; font-weight: 500; cursor: pointer; }
+  .dd-link-btn { color: var(--primary); font-size: 10px; font-weight: 500; background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  /* review panel */
+  .dd-review-panel { width: 280px; background: #fff; border-left: 1px solid #E5E7EB; display: flex; flex-direction: column; overflow: hidden; }
+  .dd-rp-header { padding: 12px 14px; border-bottom: 1px solid #E5E7EB; }
+  .dd-rp-firm { font-size: 12px; font-weight: 700; }
+  .dd-rp-meta { font-size: 10px; color: #9CA3AF; margin-top: 2px; }
+  .dd-rp-checklist { flex: 1; overflow-y: auto; padding: 10px 14px; }
+  .dd-rp-section { margin-bottom: 14px; }
+  .dd-rp-section-title { font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .dd-check-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; font-size: 11px; color: #374151; }
+  .dd-check-icon { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #D1D5DB; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+  .dd-check-icon.ok { border-color: #16A34A; background: #DCFCE7; color: #16A34A; }
+  .dd-check-icon.fail { border-color: #DC2626; background: #FEE2E2; color: #DC2626; }
+  .dd-check-icon.pend { border-color: #D97706; background: #FEF9C3; color: #D97706; }
+  .dd-check-link { margin-left: auto; font-size: 10px; color: var(--primary); cursor: pointer; }
+  .dd-rp-actions { padding: 12px 14px; border-top: 1px solid #E5E7EB; display: flex; flex-direction: column; gap: 6px; }
+  .dd-approve-btn { padding: 8px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .dd-reject-btn { padding: 8px; background: #fff; color: #DC2626; border: 1px solid #FCA5A5; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+  .dd-query-btn { padding: 8px; background: #fff; color: #D97706; border: 1px solid #FDE68A; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+
+  /* ── Comparison note ── */
+  .comparison-table { background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin: 24px 0 0; }
+  .comparison-table table { width: 100%; border-collapse: collapse; }
+  .comparison-table th { background: #F9FAFB; padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #6B7280; border-bottom: 1px solid #E5E7EB; }
+  .comparison-table td { padding: 10px 16px; font-size: 12px; border-bottom: 1px solid #F3F4F6; }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .tick { color: #16A34A; font-weight: 700; }
+  .cross { color: #DC2626; font-weight: 700; }
+  .neutral { color: #D97706; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <h1>Credai — UX Design Directions</h1>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showDir('a')">A — Structured Authority</button>
+    <button class="tab-btn" onclick="showDir('b')">B — Clean Minimal</button>
+    <button class="tab-btn" onclick="showDir('c')">C — Bold Dashboard</button>
+    <button class="tab-btn" onclick="showDir('d')">D — Staff Review</button>
+    <button class="tab-btn" onclick="showDir('compare')">Compare All</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DIRECTION A
+══════════════════════════════════ -->
+<div id="dir-a" class="direction active da">
+  <div class="direction-header">
+    <h2>Direction A — Structured Authority</h2>
+    <p>Institution-first design. Green header, clear visual hierarchy, section cards. Familiar to users of bank portals and government compliance tools.</p>
+  </div>
+  <div class="screens-grid">
+
+    <!-- Screen A1: Wizard Step 1 -->
+    <div class="screen">
+      <div class="screen-label">Applicant Wizard — Step 1: CREDAI Form</div>
+      <div class="screen-body">
+        <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">credai.pune.gov.in/apply/step-1</div></div>
+        <div class="da-header">
+          <div class="da-logo">CREDAI Pune — Member Portal</div>
+          <div class="da-user">Rajesh Builders Pvt Ltd ▾</div>
+        </div>
+        <div class="da-steprail">
+          <div class="da-step done"><div class="da-step-num"></div></div>
+          <div class="da-step active"><div class="da-step-num">2</div> Address</div>
+          <div class="da-step"><div class="da-step-num">3</div> Firm Details</div>
+          <div class="da-step"><div class="da-step-num">4</div> Contact</div>
+          <div class="da-step"><div class="da-step-num">5</div> Projects</div>
+          <div class="da-step"><div class="da-step-num">...</div></div>
+        </div>
+        <div class="da-content">
+          <div class="da-step-title">Step 2 — Address Details</div>
+          <div class="da-step-sub">Enter your firm's registered address and verify GST/PAN details</div>
+          <div class="da-card">
+            <div class="da-card-title">Address</div>
+            <div class="da-form-row one">
+              <div class="da-field"><label>Address Line 1 <span>*</span></label><input type="text" value="Plot 14, Shivaji Nagar"></div>
+            </div>
+            <div class="da-form-row one">
+              <div class="da-field"><label>Address Line 2 <span>*</span></label><input type="text" value="Near Pune Station"></div>
+            </div>
+            <div class="da-form-row">
+              <div class="da-field"><label>District</label><select><option>Pune</option></select></div>
+              <div class="da-field"><label>Location <span>*</span></label><select><option>PMC</option></select></div>
+              <div class="da-field"><label>Pincode</label><input type="text" value="411001"></div>
+            </div>
+          </div>
+          <div class="da-card">
+            <div class="da-card-title">GST Details</div>
+            <div class="da-form-row two">
+              <div class="da-field">
+                <label>GST Number <span>*</span></label>
+                <input type="text" value="27AABCU9603R1ZX">
+                <div style="margin-top:4px"><span class="da-badge verified">✓ Verified</span></div>
+              </div>
+              <div class="da-field">
+                <label>Upload GST Certificate <span>*</span></label>
+                <div class="da-upload uploaded">
+                  <div class="da-upload-icon">📄</div>
+                  <div class="da-file-chip">
+                    <div class="name">GST_Certificate.pdf</div>
+                    <div class="actions"><a>View</a><a>Remove</a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="da-card">
+            <div class="da-card-title">PAN Details</div>
+            <div class="da-form-row two">
+              <div class="da-field">
+                <label>PAN Card Number <span>*</span></label>
+                <input type="text" value="AABCU9603R" class="error">
+                <div class="helper">PAN must be 10 characters</div>
+              </div>
+              <div class="da-field">
+                <label>Upload PAN Card <span>*</span></label>
+                <div class="da-upload">
+                  <div class="da-upload-icon">📎</div>
+                  <div class="da-upload-text"><strong>Upload PAN Card</strong>PDF, JPG up to 5 MB</div>
+                  <button class="da-upload-btn">Upload</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="da-footer">
+          <button class="da-btn-secondary">← Previous</button>
+          <div class="da-autosave">Saved just now</div>
+          <button class="da-btn-primary">Next Step →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen A2: Step 1 with document checklist -->
+    <div class="screen">
+      <div class="screen-label">Applicant Wizard — Step 1: CREDAI Form (Document Panel Open)</div>
+      <div class="screen-body">
+        <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">credai.pune.gov.in/apply/step-1</div></div>
+        <div class="da-header">
+          <div class="da-logo">CREDAI Pune — Member Portal</div>
+          <div class="da-user">New Application ▾</div>
+        </div>
+        <div class="da-steprail">
+          <div class="da-step active"><div class="da-step-num">1</div> CREDAI Form</div>
+          <div class="da-step"><div class="da-step-num">2</div> Address</div>
+          <div class="da-step"><div class="da-step-num">3</div> Firm Details</div>
+          <div class="da-step"><div class="da-step-num">4</div> Contact</div>
+          <div class="da-step"><div class="da-step-num">5</div> Projects</div>
+          <div class="da-step"><div class="da-step-num">...</div></div>
+        </div>
+        <div class="da-content">
+          <div class="da-step-title">Step 1 — CREDAI Form</div>
+          <div class="da-step-sub">Select your membership type and firm structure to begin</div>
+          <div class="da-card" style="margin-bottom:10px">
+            <div class="da-form-row two">
+              <div class="da-field"><label>Membership Type <span>*</span></label><select><option>Ordinary</option></select></div>
+              <div class="da-field"><label>Firm Type <span>*</span></label><select><option>Private Limited</option></select></div>
+            </div>
+          </div>
+          <div class="da-checklist">
+            <div class="da-checklist-header">
+              <div class="da-checklist-title">📋 Documents you'll need — Ordinary / Private Limited</div>
+              <div class="da-checklist-toggle">▲ Collapse</div>
+            </div>
+            <div class="da-checklist-body">
+              <div class="da-doc-item"><div class="da-doc-check done"></div>Commencement Certificate / N.A. Order<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check done"></div>Completion Certificate<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>Code of Conduct (stamped &amp; signed)<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>Memorandum &amp; Articles of Association<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>PAN Card of Firm<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>PAN &amp; Aadhaar of all Directors<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>GST Registration Certificate<span style="font-size:9px;color:#9CA3AF;margin-left:auto">If applicable</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>Proposer / Seconder Form<span class="da-doc-req">REQUIRED</span></div>
+              <div class="da-doc-item"><div class="da-doc-check"></div>Self Declaration<span class="da-doc-req">REQUIRED</span></div>
+            </div>
+          </div>
+          <div class="da-card">
+            <div class="da-card-title">Application Header</div>
+            <div class="da-form-row one">
+              <div class="da-field"><label>Firm Name <span>*</span></label><input type="text" placeholder="Enter Firm Name"></div>
+            </div>
+          </div>
+        </div>
+        <div class="da-footer">
+          <div></div>
+          <div class="da-autosave">Draft saved</div>
+          <button class="da-btn-primary">Next Step →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DIRECTION B
+══════════════════════════════════ -->
+<div id="dir-b" class="direction db">
+  <div class="direction-header">
+    <h2>Direction B — Clean Minimal</h2>
+    <p>White-surface, dot-step-indicator design. Logo mark in header. Maximum breathing room. Premium SaaS feel with strong typographic hierarchy.</p>
+  </div>
+  <div class="screens-grid">
+
+    <div class="screen">
+      <div class="screen-label">Applicant Wizard — Step 3: Firm Details</div>
+      <div class="screen-body">
+        <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">portal.credaipune.org/apply/firm-details</div></div>
+        <div class="db-header">
+          <div class="db-logo-wrap">
+            <div class="db-logo-mark">C</div>
+            <div><span class="db-logo-text">CREDAI Pune</span><span class="db-logo-sub">Member Portal</span></div>
+          </div>
+          <div class="db-user-pill"><div class="db-user-avatar">R</div>Rajesh Builders ▾</div>
+        </div>
+        <div class="db-progress-bar">
+          <div class="db-progress-label"><span>Step 3 of 12 — Firm Details</span><small>3 steps completed</small></div>
+          <div class="db-progress-track"><div class="db-progress-fill"></div></div>
+          <div class="db-steps-dots">
+            <div class="db-dot done"><div class="db-dot-circle">✓</div><div class="db-dot-label">Form</div></div>
+            <div class="db-dot done"><div class="db-dot-circle">✓</div><div class="db-dot-label">Address</div></div>
+            <div class="db-dot active"><div class="db-dot-circle">3</div><div class="db-dot-label">Firm</div></div>
+            <div class="db-dot"><div class="db-dot-circle">4</div><div class="db-dot-label">Contact</div></div>
+            <div class="db-dot"><div class="db-dot-circle">5</div><div class="db-dot-label">Projects</div></div>
+            <div class="db-dot"><div class="db-dot-circle">6</div><div class="db-dot-label">Cmcmt.</div></div>
+            <div class="db-dot"><div class="db-dot-circle">7</div><div class="db-dot-label">Directors</div></div>
+            <div class="db-dot"><div class="db-dot-circle">...</div><div class="db-dot-label">more</div></div>
+          </div>
+        </div>
+        <div class="db-content">
+          <div class="db-step-header">
+            <div class="db-step-num-tag">Step 3</div>
+            <div class="db-step-title">Firm Details</div>
+            <div class="db-step-sub">Provide your firm's registration and project information</div>
+          </div>
+          <div class="db-section-card">
+            <div class="db-section-title">Firm Registration</div>
+            <div class="db-form-grid">
+              <div class="db-field"><label>Firm Type <span class="req">*</span></label><select><option>Private Limited</option></select></div>
+              <div class="db-field"><label>Maha RERA Number</label><input type="text" placeholder="MH/12345/2023"></div>
+              <div class="db-field"><label>ROC Number</label><input type="text" placeholder="ROC-PUNE-000123"></div>
+            </div>
+          </div>
+          <div class="db-section-card">
+            <div class="db-section-title">Projects Overview</div>
+            <div class="db-form-grid">
+              <div class="db-field"><label>Ongoing Projects <span class="req">*</span></label><input type="number" value="3"></div>
+              <div class="db-field"><label>Completed Projects <span class="req">*</span></label><input type="number" value="7"></div>
+              <div class="db-field"><label>N.A. Order Date</label><input type="date" value="2022-03-15"></div>
+            </div>
+          </div>
+          <div class="db-section-card">
+            <div class="db-section-title">Required Documents</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="db-uploaded-chip">
+                <div class="db-uc-icon">✓</div>
+                <div class="db-uc-name">ROC_Certificate.pdf</div>
+                <div class="db-uc-actions"><a>View</a><a class="del">Remove</a></div>
+              </div>
+              <div class="db-upload-zone">
+                <strong>Upload Memorandum of Association *</strong>
+                <p>Drag & drop or click to browse · PDF, JPG, PNG · Max 5 MB</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="db-footer">
+          <button class="db-btn-ghost">← Previous</button>
+          <div class="db-save-chip"><span>✓ Saved</span> just now</div>
+          <button class="db-btn-solid">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="screen-label">Applicant Wizard — Step 2: Address + GST/PAN Verification</div>
+      <div class="screen-body">
+        <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">portal.credaipune.org/apply/address</div></div>
+        <div class="db-header">
+          <div class="db-logo-wrap">
+            <div class="db-logo-mark">C</div>
+            <div><span class="db-logo-text">CREDAI Pune</span><span class="db-logo-sub">Member Portal</span></div>
+          </div>
+          <div class="db-user-pill"><div class="db-user-avatar">R</div>Rajesh Builders ▾</div>
+        </div>
+        <div class="db-progress-bar">
+          <div class="db-progress-label"><span>Step 2 of 12 — Address Details</span><small>1 step completed</small></div>
+          <div class="db-progress-track"><div class="db-progress-fill" style="width:8%"></div></div>
+          <div class="db-steps-dots">
+            <div class="db-dot done"><div class="db-dot-circle">✓</div><div class="db-dot-label">Form</div></div>
+            <div class="db-dot active"><div class="db-dot-circle">2</div><div class="db-dot-label">Address</div></div>
+            <div class="db-dot"><div class="db-dot-circle">3</div><div class="db-dot-label">Firm</div></div>
+            <div class="db-dot"><div class="db-dot-circle">4</div><div class="db-dot-label">Contact</div></div>
+            <div class="db-dot"><div class="db-dot-circle">5</div><div class="db-dot-label">Projects</div></div>
+            <div class="db-dot"><div class="db-dot-circle">...</div><div class="db-dot-label">more</div></div>
+          </div>
+        </div>
+        <div class="db-content">
+          <div class="db-step-header">
+            <div class="db-step-num-tag">Step 2</div>
+            <div class="db-step-title">Address Details</div>
+            <div class="db-step-sub">Enter your registered address and verify your tax numbers</div>
+          </div>
+          <div class="db-section-card">
+            <div class="db-section-title">Registered Address</div>
+            <div class="db-form-grid one">
+              <div class="db-field"><label>Address Line 1 <span class="req">*</span></label><input type="text" value="Plot 14, Shivaji Nagar"></div>
+            </div>
+            <div class="db-form-grid two" style="margin-top:10px">
+              <div class="db-field"><label>District</label><select><option>Pune</option></select></div>
+              <div class="db-field"><label>Location <span class="req">*</span></label><select><option>PMC</option></select></div>
+            </div>
+          </div>
+          <div class="db-section-card">
+            <div class="db-section-title">GST Verification</div>
+            <div class="db-form-grid two">
+              <div class="db-field">
+                <label>GST Number <span class="req">*</span></label>
+                <div class="verify-row" style="display:flex;gap:6px">
+                  <input type="text" value="27AABCU9603R1ZX" style="flex:1;padding:7px 10px;border:1px solid #86EFAC;border-radius:6px;font-size:12px;background:#F0FDF4">
+                  <button class="db-verify-btn" style="border-color:#16A34A;color:#16A34A">✓ Verified</button>
+                </div>
+              </div>
+              <div class="db-field">
+                <label>PAN Number <span class="req">*</span></label>
+                <div class="verify-row" style="display:flex;gap:6px">
+                  <input type="text" value="AABCU9603" style="flex:1;padding:7px 10px;border:1px solid #FCA5A5;border-radius:6px;font-size:12px;background:#FEF2F2">
+                  <button class="db-verify-btn" style="border-color:#DC2626;color:#DC2626">Verify →</button>
+                </div>
+                <div style="font-size:10px;color:#DC2626;margin-top:3px">PAN must be exactly 10 characters</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="db-footer">
+          <button class="db-btn-ghost">← Previous</button>
+          <div class="db-save-chip"><span>✓ Saved</span></div>
+          <button class="db-btn-solid">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DIRECTION C
+══════════════════════════════════ -->
+<div id="dir-c" class="direction dc">
+  <div class="direction-header">
+    <h2>Direction C — Bold Dashboard</h2>
+    <p>Dark sidebar navigation with step list. Modern SaaS / enterprise app aesthetic. Steps visible at a glance in the sidebar. Strong visual contrast.</p>
+  </div>
+  <div class="screens-grid">
+
+    <div class="screen">
+      <div class="screen-label">Applicant Wizard — Step 7: Directors Details</div>
+      <div class="screen-body">
+        <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">credaipune.org/apply</div></div>
+        <div class="dc-shell">
+          <div class="dc-sidebar">
+            <div class="dc-sidebar-logo"><div class="mark">CREDAI</div><div class="sub">Pune Member Portal</div></div>
+            <div class="dc-sidebar-steps">
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>CREDAI Form</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Address</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Firm Details</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Contact Person</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Completed Projects</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Commencement</div>
+              <div class="dc-sidebar-step active"><div class="dc-step-icon">7</div>Directors</div>
+              <div class="dc-sidebar-step"><div class="dc-step-icon">8</div>Proposer/Seconder</div>
+              <div class="dc-sidebar-step"><div class="dc-step-icon">9</div>Code of Conduct</div>
+              <div class="dc-sidebar-step"><div class="dc-step-icon">10</div>Self Declaration</div>
+              <div class="dc-sidebar-step"><div class="dc-step-icon">11</div>Additional Docs</div>
+              <div class="dc-sidebar-step"><div class="dc-step-icon">12</div>Review &amp; Submit</div>
+            </div>
+            <div class="dc-sidebar-progress">
+              <div class="dc-prog-label"><span>Progress</span><span>6/12</span></div>
+              <div class="dc-prog-track"><div class="dc-prog-fill" style="width:50%"></div></div>
+            </div>
+          </div>
+          <div class="dc-main">
+            <div class="dc-top-bar">
+              <div class="dc-breadcrumb">New Application › <strong>Step 7 — Directors</strong></div>
+              <div class="dc-top-actions">
+                <div class="dc-save-badge">✓ Saved</div>
+              </div>
+            </div>
+            <div class="dc-content">
+              <div class="dc-section">
+                <div class="dc-section-header"><div class="dc-section-dot"></div><div class="dc-section-title">Director 1</div><div class="dc-section-complete">All required fields complete ✓</div></div>
+                <div class="dc-section-body">
+                  <div class="dc-grid">
+                    <div class="dc-field"><label>Name <span class="req">*</span></label><input type="text" value="Rajesh Kumar Sharma"></div>
+                    <div class="dc-field"><label>Designation <span class="req">*</span></label><input type="text" value="Managing Director"></div>
+                    <div class="dc-field"><label>Mobile <span class="req">*</span></label><input type="text" value="9876543210"></div>
+                  </div>
+                  <div class="dc-grid two" style="margin-top:10px">
+                    <div class="dc-field"><label>Aadhaar Number <span class="req">*</span></label><input type="text" value="1234 5678 9012"></div>
+                    <div class="dc-field"><label>PAN Number <span class="req">*</span></label><input type="text" value="ABCDE1234F"></div>
+                  </div>
+                  <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+                    <div class="dc-upload-row"><div class="dc-upload-label">Aadhaar Card<span>REQUIRED</span></div><div class="dc-upload-status done">✓ Uploaded</div></div>
+                    <div class="dc-upload-row"><div class="dc-upload-label">PAN Card<span>REQUIRED</span></div><div class="dc-upload-status done">✓ Uploaded</div></div>
+                    <div class="dc-upload-row"><div class="dc-upload-label">Signature<span>REQUIRED</span></div><div class="dc-upload-status required">Not uploaded</div><button class="dc-upload-btn-sm">Upload</button></div>
+                    <div class="dc-upload-row"><div class="dc-upload-label">Self Photo<span>REQUIRED</span></div><div class="dc-upload-status required">Not uploaded</div><button class="dc-upload-btn-sm">Upload</button></div>
+                  </div>
+                </div>
+              </div>
+              <button style="width:100%;padding:10px;border:1.5px dashed #D1D5DB;border-radius:8px;background:#FAFAFA;font-size:12px;color:#9CA3AF;cursor:pointer">+ Add Director 2 (minimum 2 required)</button>
+            </div>
+            <div class="dc-footer">
+              <button class="dc-btn-back">← Previous</button>
+              <button class="dc-btn-next" style="opacity:0.5;cursor:not-allowed">Next → (Add Director 2 first)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="screen-label">Applicant Wizard — Step 12: Review & Submit</div>
+      <div class="screen-body">
+        <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">credaipune.org/apply/review</div></div>
+        <div class="dc-shell">
+          <div class="dc-sidebar">
+            <div class="dc-sidebar-logo"><div class="mark">CREDAI</div><div class="sub">Pune Member Portal</div></div>
+            <div class="dc-sidebar-steps">
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>CREDAI Form</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Address</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Firm Details</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Contact Person</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Completed Projects</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Commencement</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Directors</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Proposer/Seconder</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Code of Conduct</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Self Declaration</div>
+              <div class="dc-sidebar-step done"><div class="dc-step-icon">✓</div>Additional Docs</div>
+              <div class="dc-sidebar-step active"><div class="dc-step-icon">12</div>Review &amp; Submit</div>
+            </div>
+            <div class="dc-sidebar-progress">
+              <div class="dc-prog-label"><span>Progress</span><span>Ready!</span></div>
+              <div class="dc-prog-track"><div class="dc-prog-fill" style="width:100%;background:#4ADE80"></div></div>
+            </div>
+          </div>
+          <div class="dc-main">
+            <div class="dc-top-bar">
+              <div class="dc-breadcrumb">New Application › <strong>Step 12 — Review &amp; Submit</strong></div>
+            </div>
+            <div class="dc-content">
+              <div class="dc-section">
+                <div class="dc-section-header"><div class="dc-section-dot"></div><div class="dc-section-title">Basic Information</div><a style="margin-left:auto;font-size:10px;color:#15803D;cursor:pointer">Edit</a></div>
+                <div class="dc-section-body">
+                  <div class="dc-grid">
+                    <div><div style="font-size:9px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Firm Name</div><div style="font-size:12px;font-weight:600">Rajesh Builders Pvt Ltd</div></div>
+                    <div><div style="font-size:9px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Membership Type</div><div style="font-size:12px;font-weight:600">Ordinary</div></div>
+                    <div><div style="font-size:9px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Firm Type</div><div style="font-size:12px;font-weight:600">Private Limited</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="dc-section">
+                <div class="dc-section-header"><div class="dc-section-dot"></div><div class="dc-section-title">Declaration</div></div>
+                <div class="dc-section-body">
+                  <div style="display:flex;align-items:flex-start;gap:10px;font-size:11px;color:#374151;line-height:1.5">
+                    <input type="checkbox" checked style="margin-top:2px;accent-color:#15803D">
+                    <span>I agree to the terms and conditions and declare that all information provided is accurate and complete.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dc-footer">
+              <button class="dc-btn-back">← Previous</button>
+              <button class="dc-btn-next" style="background:#15803D;padding:8px 24px;font-size:12px">Submit Application →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DIRECTION D — STAFF REVIEW
+══════════════════════════════════ -->
+<div id="dir-d" class="direction dd">
+  <div class="direction-header">
+    <h2>Direction D — Staff Review Dashboard</h2>
+    <p>Dedicated staff-surface design. Application queue with inline verification badges + a detail panel with structured checklist. Accuracy and auditability first.</p>
+  </div>
+
+  <div class="screen" style="max-width:100%">
+    <div class="screen-label">Staff Review Dashboard — Application Queue + Review Panel</div>
+    <div class="screen-body">
+      <div class="mock-browser"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">admin.credaipune.org/review</div></div>
+      <div class="dd-shell">
+        <div class="dd-sidebar">
+          <div class="dd-sidebar-header">
+            <div class="dd-sidebar-logo">CREDAI Pune</div>
+            <div class="dd-sidebar-role">Staff Review Portal</div>
+          </div>
+          <div class="dd-sidebar-nav">
+            <div class="dd-nav-item active"><div class="dd-nav-icon"></div>Applications<span class="dd-nav-badge">12</span></div>
+            <div class="dd-nav-item"><div class="dd-nav-icon"></div>Members</div>
+            <div class="dd-nav-item"><div class="dd-nav-icon"></div>Renewals<span class="dd-nav-badge">3</span></div>
+            <div class="dd-nav-item"><div class="dd-nav-icon"></div>Payments</div>
+            <div class="dd-nav-item"><div class="dd-nav-icon"></div>Reports</div>
+          </div>
+        </div>
+        <div class="dd-main">
+          <div class="dd-top">
+            <h2>Applications — Pending Review</h2>
+            <div class="dd-top-actions">
+              <button class="dd-filter-btn active-filter">Pending (12)</button>
+              <button class="dd-filter-btn">Under Review (4)</button>
+              <button class="dd-filter-btn">All</button>
+            </div>
+          </div>
+          <div class="dd-body">
+            <table class="dd-table">
+              <thead>
+                <tr>
+                  <th>Firm</th>
+                  <th>Type</th>
+                  <th>Submitted</th>
+                  <th>GST/PAN</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="selected">
+                  <td><div class="dd-firm-name">Rajesh Builders Pvt Ltd</div><div class="dd-firm-type">Private Limited · Ordinary</div></td>
+                  <td><span class="dd-type-badge ordinary">Ordinary</span></td>
+                  <td style="font-size:10px;color:#6B7280">22 Apr 2026<br>10:34 AM</td>
+                  <td><div class="dd-verify-group"><span class="dd-vchip ok">GST ✓</span><span class="dd-vchip ok">PAN ✓</span></div></td>
+                  <td><span class="dd-status-badge review">Under Review</span></td>
+                  <td><button class="dd-action-btn">Review</button></td>
+                </tr>
+                <tr>
+                  <td><div class="dd-firm-name">Sunrise Developers LLP</div><div class="dd-firm-type">LLP · Ordinary</div></td>
+                  <td><span class="dd-type-badge ordinary">Ordinary</span></td>
+                  <td style="font-size:10px;color:#6B7280">21 Apr 2026<br>3:12 PM</td>
+                  <td><div class="dd-verify-group"><span class="dd-vchip ok">GST ✓</span><span class="dd-vchip fail">PAN ✗</span></div></td>
+                  <td><span class="dd-status-badge pending">Pending</span></td>
+                  <td><button class="dd-action-btn">Review</button></td>
+                </tr>
+                <tr>
+                  <td><div class="dd-firm-name">Metro Infra Associates</div><div class="dd-firm-type">AOP · Associate</div></td>
+                  <td><span class="dd-type-badge associate">Associate</span></td>
+                  <td style="font-size:10px;color:#6B7280">20 Apr 2026<br>9:05 AM</td>
+                  <td><div class="dd-verify-group"><span class="dd-vchip pend">GST ⏳</span><span class="dd-vchip ok">PAN ✓</span></div></td>
+                  <td><span class="dd-status-badge pending">Pending</span></td>
+                  <td><button class="dd-action-btn">Review</button></td>
+                </tr>
+                <tr>
+                  <td><div class="dd-firm-name">Green Valley Estates</div><div class="dd-firm-type">Pvt Ltd · RERA Project</div></td>
+                  <td><span class="dd-type-badge rera">RERA</span></td>
+                  <td style="font-size:10px;color:#6B7280">19 Apr 2026<br>2:45 PM</td>
+                  <td><div class="dd-verify-group"><span class="dd-vchip ok">GST ✓</span><span class="dd-vchip ok">PAN ✓</span></div></td>
+                  <td><span class="dd-status-badge pending">Pending</span></td>
+                  <td><button class="dd-action-btn">Review</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="dd-review-panel">
+          <div class="dd-rp-header">
+            <div class="dd-rp-firm">Rajesh Builders Pvt Ltd</div>
+            <div class="dd-rp-meta">Ordinary · Private Limited · Submitted 22 Apr</div>
+          </div>
+          <div class="dd-rp-checklist">
+            <div class="dd-rp-section">
+              <div class="dd-rp-section-title">Identity & Tax</div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>GST Verified<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>PAN Verified<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>Aadhaar — Director 1<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>Aadhaar — Director 2<button class="dd-check-link">View</button></div>
+            </div>
+            <div class="dd-rp-section">
+              <div class="dd-rp-section-title">Regulatory Documents</div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>Commencement Certificate<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>Completion Certificate<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>MoA / AoA<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>ROC Certificate<button class="dd-check-link">View</button></div>
+            </div>
+            <div class="dd-rp-section">
+              <div class="dd-rp-section-title">Compliance</div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>Code of Conduct<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon ok">✓</div>Self Declaration<button class="dd-check-link">View</button></div>
+              <div class="dd-check-item"><div class="dd-check-icon pend">⏳</div>Proposer/Seconder Form<button class="dd-check-link">View</button></div>
+            </div>
+            <div class="dd-rp-section">
+              <div class="dd-rp-section-title">Fee Status</div>
+              <div class="dd-check-item"><div class="dd-check-icon fail">✗</div>Payment not confirmed</div>
+            </div>
+          </div>
+          <div class="dd-rp-actions">
+            <button class="dd-approve-btn">✓ Approve Application</button>
+            <button class="dd-query-btn">⚠ Send Query to Applicant</button>
+            <button class="dd-reject-btn">✗ Reject Application</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     COMPARE
+══════════════════════════════════ -->
+<div id="dir-compare" class="direction">
+  <div class="direction-header">
+    <h2>Comparison — All Directions</h2>
+    <p>Side-by-side evaluation of all four design directions against Credai's key design goals.</p>
+  </div>
+  <div class="comparison-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Criteria</th>
+          <th>A — Structured Authority</th>
+          <th>B — Clean Minimal</th>
+          <th>C — Bold Dashboard</th>
+          <th>D — Staff Review</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Institutional trust signal</strong></td>
+          <td><span class="tick">●●●</span> Green header, official feel</td>
+          <td><span class="neutral">●●○</span> Clean but subtle</td>
+          <td><span class="neutral">●●○</span> Modern, less official</td>
+          <td><span class="tick">●●●</span> Admin authority</td>
+        </tr>
+        <tr>
+          <td><strong>Form density (efficient/moderate)</strong></td>
+          <td><span class="tick">●●●</span> 3-col grid, card sections</td>
+          <td><span class="neutral">●●○</span> Slightly airier</td>
+          <td><span class="tick">●●●</span> Dense, sidebar saves space</td>
+          <td>N/A (review surface)</td>
+        </tr>
+        <tr>
+          <td><strong>Step visibility</strong></td>
+          <td><span class="neutral">●●○</span> Horizontal rail (can overflow)</td>
+          <td><span class="tick">●●●</span> Dot progress + % bar</td>
+          <td><span class="tick">●●●</span> Full sidebar list — best</td>
+          <td>N/A</td>
+        </tr>
+        <tr>
+          <td><strong>Document upload UX</strong></td>
+          <td><span class="tick">●●●</span> Chip with View/Remove inline</td>
+          <td><span class="tick">●●●</span> Drop zone + uploaded chip</td>
+          <td><span class="tick">●●●</span> Upload row list</td>
+          <td>N/A</td>
+        </tr>
+        <tr>
+          <td><strong>Staff auditability</strong></td>
+          <td><span class="cross">●○○</span> Not applicable</td>
+          <td><span class="cross">●○○</span> Not applicable</td>
+          <td><span class="cross">●○○</span> Not applicable</td>
+          <td><span class="tick">●●●</span> Checklist + inline docs</td>
+        </tr>
+        <tr>
+          <td><strong>Familiarity to Indian users</strong></td>
+          <td><span class="tick">●●●</span> Closest to bank/GSTN portals</td>
+          <td><span class="neutral">●●○</span> Modern but less familiar</td>
+          <td><span class="neutral">●●○</span> Enterprise SaaS feel</td>
+          <td><span class="tick">●●●</span> Admin tool feel</td>
+        </tr>
+        <tr>
+          <td><strong>Recommended for</strong></td>
+          <td>Applicant wizard (primary)</td>
+          <td>Applicant wizard (alt)</td>
+          <td>Applicant wizard — if sidebar preferred</td>
+          <td>Staff review surface</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:20px;padding:16px 20px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:13px;color:#166534">
+    <strong>Recommended combination:</strong> Direction <strong>A</strong> or <strong>B</strong> for the applicant wizard (confirm with stakeholders), + Direction <strong>D</strong> for the staff review surface. Both can share the same Tailwind/shadcn theme tokens.
+  </div>
+</div>
+
+<script>
+function showDir(id) {
+  document.querySelectorAll('.direction').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('dir-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
