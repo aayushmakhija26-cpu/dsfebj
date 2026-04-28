@@ -31,7 +31,22 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Answer each applicable question before proceeding. "N/A — [reason]" is a valid answer.
+
+- **I (Type-Safe):** Are all new API procedures tRPC with Zod-validated inputs/outputs?
+  Is any new env config added to `src/env.js`?
+- **II (Security/Privacy):** Does this feature touch PII, Aadhaar, payment, or auth?
+  If yes, list controls applied: encryption keys, RBAC enforcement, MFA gate, log masking.
+- **III (Compliance-by-Construction):** Are all business rules encoded as Zod schemas?
+  Is the wizard step schema updated? Is the approval state machine updated?
+- **IV (Resilient Integrations):** Does this feature call GST/PAN/payment/email?
+  If yes, confirm queue-and-retry and provider-agnostic adapter interface are in place.
+- **V (Audit Trail):** Are all new state transitions, staff actions, document accesses,
+  and certificate events wired to the centralized audit-log writer?
+- **VI (A11y/Performance):** Does this feature add or modify UI? If yes, confirm axe-core
+  and Lighthouse CI ≥ 90 gates pass, keyboard navigation verified.
+- **VII (Observability):** Are structured logs (no PII) and tracing spans added for all
+  new server-side paths? Is a runbook written for any new failure mode?
 
 ## Project Structure
 

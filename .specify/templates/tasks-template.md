@@ -148,14 +148,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Improvements and constitution-mandated cross-cutting work across all stories
 
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
-- [ ] TXXX Security hardening
+- [ ] TXXX Security hardening (OWASP Top 10 review for any new endpoints)
 - [ ] TXXX Run quickstart.md validation
+- [ ] TXXX [Constitution V] Verify all new state transitions wired to audit-log writer
+- [ ] TXXX [Constitution VII] Verify structured logs (no PII) + tracing spans on new paths
+- [ ] TXXX [Constitution VI] Lighthouse CI a11y ≥ 90 passing for all new UI
 
 ---
 
