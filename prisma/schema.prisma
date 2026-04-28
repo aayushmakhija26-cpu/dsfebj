@@ -1,0 +1,16 @@
+// Prisma schema — CREDAI Pune Member Portal
+// Full entity definitions in Phase 2 (T017–T034).
+// This skeleton establishes the datasource and generator.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Phase 2 entities are added in T017–T034.
+// ============================================================

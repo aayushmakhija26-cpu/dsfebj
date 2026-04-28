@@ -58,23 +58,23 @@ Initialize a production-ready Next.js 15 App Router project with environment val
 
 ### Phase 1 Tasks
 
-- [ ] T001 Create Next.js 15 App Router project with TypeScript 5.x strict mode
-- [ ] T002 Set up package.json with all core dependencies (tRPC, Prisma, React Hook Form, shadcn/ui, Zod, Auth.js, pg-boss, Sentry, pino, etc.)
-- [ ] T003 Create `src/env.js` environment variable validation using @t3-oss/env-nextjs with all required vars (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, payment gateway keys, external verification API keys, Blob storage URL, KMS key ID, CLOUDFLARE_TURNSTILE_SITE_KEY, CLOUDFLARE_TURNSTILE_SECRET_KEY, PUBLIC_VERIFY_RATE_LIMIT, etc.)
-- [ ] T004 [P] Create `.env.local.example` as reference for all required environment variables with secure defaults
-- [ ] T005 Set up `.gitignore` to exclude `.env.local`, `node_modules`, `dist`, `build`, `.next`, and other sensitive paths
-- [ ] T006 Create `tsconfig.json` with strict mode enabled, path aliases (`@/*` → `src/*`), and target ES2020
-- [ ] T007 Create base ESLint configuration (`eslint.config.js`) with TypeScript + React rules
-- [ ] T008 Configure Tailwind v4 (`tailwind.config.ts`) with shadcn/ui color tokens and custom theme extensions (CREDAI branding colors)
-- [ ] T008b Set up `next-intl` internationalization (`pnpm add next-intl`): create `src/i18n/request.ts` config, `messages/en.json` message file, and wrap `src/app/layout.tsx` with `NextIntlClientProvider`; all static UI strings (labels, error messages, button text, email subjects) MUST be added to en.json and imported via `useTranslations()` — no hardcoded string literals in any component or template file (constitution hard constraint)
-- [ ] T009 Set up Next.js App Router folder structure: `src/app`, `src/components`, `src/server`, `src/schemas`, `src/lib`, `src/middleware.ts`
-- [ ] T010 [P] Create `public/` folder with CREDAI Pune logo, favicon, and static assets
-- [ ] T011 Create `vitest.config.ts` for unit test setup and coverage configuration
-- [ ] T012 Create `playwright.config.ts` for E2E test setup (browser context, base URL, parallel workers)
-- [ ] T013 Create a README.md with setup instructions, development commands (dev, build, test, e2e, lint), and deployment guide
-- [ ] T014 Initialize GitHub Actions CI/CD workflow (`.github/workflows/ci.yml`) with: lint, type check, unit tests, e2e tests, Lighthouse CI gates (accessibility ≥90)
-- [ ] T015 Create LICENSE file and basic project governance documentation
-- [ ] T016 Commit initial setup with message "chore: initialize Next.js project structure and environment configuration"
+- [x] T001 Create Next.js 15 App Router project with TypeScript 5.x strict mode
+- [x] T002 Set up package.json with all core dependencies (tRPC, Prisma, React Hook Form, shadcn/ui, Zod, Auth.js, pg-boss, Sentry, pino, etc.)
+- [x] T003 Create `src/env.js` environment variable validation using @t3-oss/env-nextjs with all required vars (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, payment gateway keys, external verification API keys, Blob storage URL, KMS key ID, CLOUDFLARE_TURNSTILE_SITE_KEY, CLOUDFLARE_TURNSTILE_SECRET_KEY, PUBLIC_VERIFY_RATE_LIMIT, etc.)
+- [x] T004 [P] Create `.env.local.example` as reference for all required environment variables with secure defaults
+- [x] T005 Set up `.gitignore` to exclude `.env.local`, `node_modules`, `dist`, `build`, `.next`, and other sensitive paths
+- [x] T006 Create `tsconfig.json` with strict mode enabled, path aliases (`@/*` → `src/*`), and target ES2020
+- [x] T007 Create base ESLint configuration (`eslint.config.js`) with TypeScript + React rules
+- [x] T008 Configure Tailwind v4 (`tailwind.config.ts`) with shadcn/ui color tokens and custom theme extensions (CREDAI branding colors)
+- [x] T008b Set up `next-intl` internationalization (`pnpm add next-intl`): create `src/i18n/request.ts` config, `messages/en.json` message file, and wrap `src/app/layout.tsx` with `NextIntlClientProvider`; all static UI strings (labels, error messages, button text, email subjects) MUST be added to en.json and imported via `useTranslations()` — no hardcoded string literals in any component or template file (constitution hard constraint)
+- [x] T009 Set up Next.js App Router folder structure: `src/app`, `src/components`, `src/server`, `src/schemas`, `src/lib`, `src/middleware.ts`
+- [x] T010 [P] Create `public/` folder with CREDAI Pune logo, favicon, and static assets
+- [x] T011 Create `vitest.config.ts` for unit test setup and coverage configuration
+- [x] T012 Create `playwright.config.ts` for E2E test setup (browser context, base URL, parallel workers)
+- [x] T013 Create a README.md with setup instructions, development commands (dev, build, test, e2e, lint), and deployment guide
+- [x] T014 Initialize GitHub Actions CI/CD workflow (`.github/workflows/ci.yml`) with: lint, type check, unit tests, e2e tests, Lighthouse CI gates (accessibility ≥90)
+- [x] T015 Create LICENSE file and basic project governance documentation
+- [x] T016 Commit initial setup with message "chore: initialize Next.js project structure and environment configuration"
 
 ---
 

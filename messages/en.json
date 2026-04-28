@@ -1,0 +1,238 @@
+{
+  "common": {
+    "appName": "CREDAI Pune Member Portal",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "required": "Required",
+    "optional": "Optional",
+    "error": "An error occurred. Please try again.",
+    "success": "Success",
+    "na": "N/A"
+  },
+
+  "auth": {
+    "login": {
+      "title": "Sign in to CREDAI Pune Portal",
+      "subtitle": "Enter your registered email address to receive a one-time password.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@yourfirm.com",
+      "requestOtpButton": "Send OTP",
+      "requestOtpLoading": "Sending OTP...",
+      "otpSent": "A 6-digit OTP has been sent to {email}. It expires in 2 minutes.",
+      "otpLabel": "One-Time Password",
+      "otpPlaceholder": "Enter 6-digit code",
+      "verifyButton": "Verify & Sign In",
+      "verifyLoading": "Verifying...",
+      "resendOtp": "Resend OTP",
+      "resendIn": "Resend in {seconds}s",
+      "staffLogin": "Staff login",
+      "errors": {
+        "invalidEmail": "Please enter a valid email address.",
+        "otpExpired": "Your OTP has expired. Please request a new one.",
+        "otpInvalid": "Invalid OTP. Please check and try again.",
+        "tooManyRequests": "Too many OTP requests. Please wait before trying again.",
+        "generic": "Sign-in failed. Please try again."
+      }
+    },
+    "staffLogin": {
+      "title": "Staff Sign In",
+      "subtitle": "Enter your credentials to access the staff portal.",
+      "emailLabel": "Work email",
+      "passwordLabel": "Password",
+      "loginButton": "Sign In",
+      "loginLoading": "Signing in...",
+      "mfaTitle": "Two-Factor Authentication",
+      "mfaSubtitle": "Enter the 6-digit code from your authenticator app.",
+      "totpLabel": "Authentication code",
+      "totpPlaceholder": "000000",
+      "recoveryCodeLabel": "Recovery code",
+      "useRecoveryCode": "Use a recovery code instead",
+      "useTOTP": "Use authenticator app instead",
+      "errors": {
+        "invalidCredentials": "Invalid email or password.",
+        "mfaRequired": "MFA verification is required.",
+        "totpInvalid": "Invalid authentication code.",
+        "accountDisabled": "Your account has been disabled. Contact your administrator.",
+        "sessionExpired": "Your session has expired. Please sign in again."
+      }
+    }
+  },
+
+  "wizard": {
+    "title": "Membership Application",
+    "draftSaved": "Draft saved",
+    "saving": "Saving...",
+    "step": "Step {current} of {total}",
+    "completeStep": "Complete this step to continue",
+    "steps": {
+      "1": "Membership & Firm Type",
+      "2": "Applicant Details",
+      "3": "Firm Details",
+      "4": "Directors / Partners",
+      "5": "Projects & Experience",
+      "6": "Financials",
+      "7": "Documents",
+      "8": "Proposer & Seconder",
+      "9": "Compliance Declaration",
+      "10": "Payment",
+      "11": "Review & Submit",
+      "12": "Confirmation"
+    },
+    "membershipType": {
+      "label": "Membership Type",
+      "ordinary": "Ordinary Membership",
+      "associate": "Associate Membership",
+      "rera": "RERA Project Membership"
+    },
+    "firmType": {
+      "label": "Firm Type",
+      "proprietorship": "Proprietorship",
+      "partnership": "Partnership",
+      "privateLimited": "Private Limited Company",
+      "llp": "LLP",
+      "publicSector": "Public Sector Undertaking",
+      "aop": "Association of Persons (AOP)",
+      "cooperative": "Co-operative Society"
+    },
+    "documents": {
+      "upload": "Upload document",
+      "dragDrop": "Drag & drop or click to upload",
+      "formats": "Accepted formats: PDF, JPEG, PNG (max 10 MB)",
+      "uploaded": "Uploaded",
+      "uploading": "Uploading...",
+      "replace": "Replace",
+      "remove": "Remove",
+      "errors": {
+        "tooLarge": "File exceeds 10 MB limit.",
+        "invalidFormat": "Only PDF, JPEG, and PNG files are accepted.",
+        "duplicate": "A document of this type has already been uploaded."
+      }
+    },
+    "submission": {
+      "applicationNumber": "Application Number",
+      "submitted": "Application submitted successfully",
+      "nextSteps": "What happens next?",
+      "reviewPeriod": "Your application will be reviewed within 15 working days.",
+      "contact": "For assistance, contact {email}"
+    }
+  },
+
+  "staff": {
+    "queue": {
+      "title": "Application Queue",
+      "emptyState": "No applications in queue",
+      "columns": {
+        "applicationNumber": "Application No.",
+        "firmName": "Firm Name",
+        "membershipType": "Type",
+        "submittedAt": "Submitted",
+        "gstStatus": "GST",
+        "panStatus": "PAN",
+        "paymentStatus": "Payment",
+        "status": "Status"
+      },
+      "filters": {
+        "status": "Filter by status",
+        "type": "Filter by type",
+        "dateFrom": "From date",
+        "dateTo": "To date"
+      }
+    },
+    "review": {
+      "title": "Application Review",
+      "approveButton": "Approve",
+      "objectButton": "Raise Objection",
+      "rejectButton": "Reject",
+      "decisionReason": "Reason (required for objection or rejection)",
+      "decisionReasonPlaceholder": "Provide a clear reason for the applicant...",
+      "confirmApprove": "Are you sure you want to approve this application?",
+      "confirmReject": "Are you sure you want to reject this application? This action is irreversible.",
+      "editField": "Edit field",
+      "reVerify": "Re-verify"
+    },
+    "decisions": {
+      "approved": "Approved",
+      "objectionRaised": "Objection Raised",
+      "rejected": "Rejected"
+    }
+  },
+
+  "member": {
+    "dashboard": {
+      "title": "Member Dashboard",
+      "welcomeBack": "Welcome back, {name}",
+      "membershipNumber": "Membership Number",
+      "validUntil": "Valid Until",
+      "status": {
+        "active": "Active",
+        "renewalDue": "Renewal Due",
+        "lapsed": "Lapsed",
+        "suspended": "Suspended"
+      }
+    },
+    "renewal": {
+      "title": "Annual Renewal",
+      "dueSoon": "Your membership expires on {date}.",
+      "markUnchanged": "Mark all as unchanged",
+      "submitRenewal": "Submit Renewal",
+      "autoApproved": "Your renewal has been auto-approved — no material changes detected.",
+      "underReview": "Your renewal is under review due to material changes detected."
+    },
+    "certificate": {
+      "download": "Download Certificate",
+      "viewHistory": "View Certificate History",
+      "current": "Current Certificate",
+      "superseded": "Superseded"
+    }
+  },
+
+  "public": {
+    "verify": {
+      "title": "Verify CREDAI Membership",
+      "subtitle": "Enter a membership number or scan the QR code on a certificate to verify its authenticity.",
+      "inputLabel": "Membership Number",
+      "inputPlaceholder": "e.g. CREDAI-PUNE-2024-001234",
+      "verifyButton": "Verify",
+      "verifying": "Verifying...",
+      "result": {
+        "valid": "Valid Membership",
+        "invalid": "Invalid or Expired",
+        "firmName": "Firm Name",
+        "membershipType": "Membership Type",
+        "validUntil": "Valid Until",
+        "status": "Status"
+      },
+      "captchaRequired": "Please complete the security check to continue.",
+      "errors": {
+        "notFound": "No membership found for this number.",
+        "rateLimited": "Too many requests. Please complete the security check.",
+        "generic": "Verification failed. Please try again."
+      }
+    }
+  },
+
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "You are not authorised to access this page.",
+    "forbidden": "Access denied.",
+    "serverError": "Something went wrong on our end. Please try again later.",
+    "networkError": "Network error. Please check your connection."
+  }
+}
