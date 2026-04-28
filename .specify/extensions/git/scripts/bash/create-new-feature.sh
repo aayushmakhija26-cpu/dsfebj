@@ -263,6 +263,17 @@ cd "$REPO_ROOT"
 
 SPECS_DIR="$REPO_ROOT/specs"
 
+# Resolve effective timestamp mode: explicit flag > git-config.yml > default (sequential)
+if [ "$USE_TIMESTAMP" = false ]; then
+    _git_cfg="$REPO_ROOT/.specify/extensions/git/git-config.yml"
+    if [ -f "$_git_cfg" ]; then
+        _bn=$(grep -E '^\s*branch_numbering\s*:' "$_git_cfg" | \
+              sed 's/.*branch_numbering[[:space:]]*:[[:space:]]*//' | \
+              tr -d "\"' \t\r\n")
+        [ "$_bn" = "timestamp" ] && USE_TIMESTAMP=true
+    fi
+fi
+
 # Function to generate branch name with stop word filtering
 generate_branch_name() {
     local description="$1"

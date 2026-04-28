@@ -132,9 +132,11 @@ function Get-NextBranchNumber {
         $highestRemote = Get-HighestNumberFromRemoteRefs
         $highestBranch = [Math]::Max($highestBranch, $highestRemote)
     } else {
-        try {
-            git fetch --all --prune 2>$null | Out-Null
-        } catch { }
+        $fetchOutput = git fetch --all --prune 2>&1 | Out-String
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "git fetch --all --prune failed (exit code $LASTEXITCODE): $($fetchOutput.Trim())"
+            exit 1
+        }
         $highestBranch = Get-HighestNumberFromBranches
     }
 
@@ -223,6 +225,19 @@ Set-Location $repoRoot
 
 $specsDir = Join-Path $repoRoot 'specs'
 
+# Resolve effective timestamp mode: explicit flag > git-config.yml > default (sequential)
+$resolvedTimestamp = $Timestamp.IsPresent
+if (-not $resolvedTimestamp) {
+    $gitConfigPath = Join-Path $repoRoot ".specify/extensions/git/git-config.yml"
+    if (Test-Path $gitConfigPath) {
+        foreach ($line in Get-Content $gitConfigPath) {
+            if ($line -match '^\s*branch_numbering\s*:\s*[''"]?timestamp[''"]?\s*$') {
+                $resolvedTimestamp = $true; break
+            }
+        }
+    }
+}
+
 function Get-BranchName {
     param([string]$Description)
 
@@ -282,12 +297,12 @@ if ($env:GIT_BRANCH_NAME) {
         $branchSuffix = Get-BranchName -Description $featureDesc
     }
 
-    if ($Timestamp -and $Number -ne 0) {
+    if ($resolvedTimestamp -and $Number -ne 0) {
         Write-Warning "[specify] Warning: -Number is ignored when -Timestamp is used"
         $Number = 0
     }
 
-    if ($Timestamp) {
+    if ($resolvedTimestamp) {
         $featureNum = Get-Date -Format 'yyyyMMdd-HHmmss'
         $branchName = "$featureNum-$branchSuffix"
     } else {
@@ -356,7 +371,7 @@ if (-not $DryRun) {
                             exit 1
                         }
                     }
-                } elseif ($Timestamp) {
+                } elseif ($resolvedTimestamp) {
                     Write-Error "Error: Branch '$branchName' already exists. Rerun to get a new timestamp or use a different -ShortName."
                     exit 1
                 } else {

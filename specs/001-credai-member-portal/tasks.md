@@ -252,12 +252,12 @@ Enable CREDAI Pune staff (Scrutiniser, Convenor, Director General, Secretary) to
 - [ ] T121 [US2] Commit staff approval workflow with message "feat(US2): implement 4-stage approval workflow with inline edits, decision routing, and audit trail"
 - [ ] T121b Create `src/app/(admin)/dashboard/page.tsx` (Operational Dashboard entry point; accessible by Scrutiniser, Convenor, Director General, Secretary, Admin roles)
 - [ ] T121c Create `src/components/staff/OperationalDashboard.tsx` displaying: live application counts grouped by status (Draft, Submitted, UnderScrutiny, AtConvenor, AtDirectorGeneral, AtSecretary, Approved, Rejected); aging buckets (0–2 days, 3–5 days, 6–10 days, 10+ days); rejection-reason breakdown by category; filterable by date range, Membership Type, Firm Type; CSV/Excel export (FR-059, FR-063)
-- [ ] T121d Add `getOperationalStats()` tRPC procedure to `src/server/api/routers/admin.router.ts` returning aggregated application counts, aging bucket data, and rejection-reason breakdown (RBAC: Scrutiniser, Convenor, DG, Secretary, Admin)
+- [ ] T121d Create `src/server/api/routers/admin.router.ts` with procedures `getOperationalStats()`, `getMemberStats()`, and `getKPIStats()` (RBAC per FR-059/060/062); mount as `admin` in `src/server/api/root.ts` — this router is extended in Phase 8 (T170) with staff management procedures
 - [ ] T121e Create `src/app/(admin)/dashboard/members/page.tsx` (Member Dashboard entry point)
 - [ ] T121f Create `src/components/staff/MemberDashboard.tsx` displaying: active members by Membership Type, members with renewals due in 30/60/90 days buckets, Lapsed member count; filterable by Membership Type and Firm Type; CSV/Excel export (FR-060, FR-063)
-- [ ] T121g Add `getMemberStats()` tRPC procedure to `admin.router.ts` aggregating member counts and renewal pipeline data (RBAC: Secretary, Admin)
+- [ ] T121g Wire `MemberDashboard.tsx` to consume `getMemberStats()` from `admin.router.ts` (created in T121d); verify RBAC restriction to Secretary and Admin roles
 - [ ] T121h Create `src/components/staff/KPIDashboard.tsx` displaying: total applications submitted (by period), median and p95 approval cycle time (submission-to-decision), first-time-right submission rate (% passing Scrutiniser review without a "missing/invalid document" objection); filterable by date range and Membership Type; CSV/Excel export (FR-062, FR-063)
-- [ ] T121i Add `getKPIStats()` tRPC procedure to `admin.router.ts` with time-windowed aggregations over AuditLog and Application tables (RBAC: Secretary, Admin)
+- [ ] T121i Wire `KPIDashboard.tsx` to consume `getKPIStats()` from `admin.router.ts` (created in T121d); verify RBAC restriction to Secretary and Admin roles
 
 ---
 
@@ -408,7 +408,7 @@ Enable System Admin to onboard new CREDAI staff via email invitations with role 
 - [ ] T167 [US6] Create `src/components/admin/PresidentManagement.tsx` displaying current Active President, historical records, form to create new President (name, signature image upload, tenure start date)
 - [ ] T168 [US6] Create invitation email template with one-time setup link (JWT token, 24-hour expiry, role info)
 - [ ] T169 [US6] Create `src/app/(admin)/invite/[token]/page.tsx` (one-time invitation acceptance page: password creation, TOTP enrolment, confirm MFA codes, submit)
-- [ ] T170 [US6] Create `src/server/api/routers/admin.router.ts` implementing admin procedures: `inviteStaff()`, `updateStaffStatus()`, `removeStaff()`, `createPresident()`, `updatePresident()`, `viewAuditLog()`, `getOperationalStats()`, `getMemberStats()`, `getKPIStats()`
+- [ ] T170 [US6] Extend `src/server/api/routers/admin.router.ts` (created in T121d) adding staff management procedures: `inviteStaff()`, `updateStaffStatus()`, `removeStaff()`, `createPresident()`, `updatePresident()`, `viewAuditLog()`, `getDSARRequests()`
 - [ ] T170b Create `src/app/(admin)/settings/audit/page.tsx` (audit log viewer; Admin-only)
 - [ ] T170c Create `src/components/admin/AuditLogViewer.tsx` with paginated, filterable audit log table: filters by actor, action type, resource type, application/member ID, and date range; CSV/Excel export; strictly read-only (FR-071)
 - [ ] T170d Add `viewAuditLog()` tRPC procedure to `admin.router.ts` (Admin-only RBAC) returning paginated AuditLog entries with filter parameters; enforce that this procedure never exposes UPDATE or DELETE paths on the audit table

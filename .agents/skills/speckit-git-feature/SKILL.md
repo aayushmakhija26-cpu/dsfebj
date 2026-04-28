@@ -33,6 +33,8 @@ If the user explicitly provided `GIT_BRANCH_NAME` (e.g., via environment variabl
 
 ## Branch Numbering Mode
 
+> **Precedence**: `GIT_BRANCH_NAME` env var (exact override) > `-Timestamp`/`--timestamp` flag > `branch_numbering` in `.specify/extensions/git/git-config.yml` > `branch_numbering` in `.specify/init-options.json` > `sequential` default.
+
 Determine the branch numbering strategy by checking configuration in this order:
 
 1. Check `.specify/extensions/git/git-config.yml` for `branch_numbering` value

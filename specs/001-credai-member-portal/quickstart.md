@@ -185,11 +185,12 @@ src/
 
 1. **`src/server/api/routers/wizard.router.ts`** (new)
    ```typescript
-   import { publicProcedure, router } from "@/server/api/trpc";
+   import { protectedProcedure, router } from "@/server/api/trpc";
    import { z } from "zod";
+   import { TRPCError } from "@trpc/server";
 
    export const wizardRouter = router({
-     getApplicationDraft: publicProcedure
+     getApplicationDraft: protectedProcedure
        .input(z.object({ applicationId: z.string().uuid() }))
        .query(async ({ ctx, input }) => {
          const app = await ctx.db.application.findUnique({
@@ -206,7 +207,7 @@ src/
          }
 
          // Check: only applicant who owns this app can retrieve
-         if (app.applicantId !== ctx.session?.user.id) {
+         if (app.applicantId !== ctx.session.user.id) {
            throw new TRPCError({ code: "FORBIDDEN" });
          }
 
