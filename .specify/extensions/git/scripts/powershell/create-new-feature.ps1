@@ -53,8 +53,8 @@ function Get-HighestNumberFromSpecs {
     param([string]$SpecsDir)
 
     [long]$highest = 0
-    if (Test-Path $SpecsDir) {
-        Get-ChildItem -Path $SpecsDir -Directory | ForEach-Object {
+    if (Test-Path -LiteralPath $SpecsDir) {
+        Get-ChildItem -LiteralPath $SpecsDir -Directory | ForEach-Object {
             if ($_.Name -match '^(\d{3,})-' -and $_.Name -notmatch '^\d{8}-\d{6}-') {
                 [long]$num = 0
                 if ([long]::TryParse($matches[1], [ref]$num) -and $num -gt $highest) {
@@ -182,7 +182,7 @@ if ($projectRoot) {
         (Join-Path $projectRoot "scripts/powershell/common.ps1")
     )
     foreach ($candidate in $candidates) {
-        if (Test-Path $candidate) {
+        if (Test-Path -LiteralPath $candidate) {
             . $candidate
             $commonLoaded = $true
             break
@@ -190,7 +190,7 @@ if ($projectRoot) {
     }
 }
 
-if (-not $commonLoaded -and (Test-Path "$PSScriptRoot/git-common.ps1")) {
+if (-not $commonLoaded -and (Test-Path -LiteralPath "$PSScriptRoot/git-common.ps1")) {
     . "$PSScriptRoot/git-common.ps1"
     $commonLoaded = $true
 }
@@ -230,8 +230,8 @@ $specsDir = Join-Path $repoRoot 'specs'
 $resolvedTimestamp = $Timestamp.IsPresent
 if (-not $resolvedTimestamp) {
     $gitConfigPath = Join-Path $repoRoot ".specify/extensions/git/git-config.yml"
-    if (Test-Path $gitConfigPath) {
-        foreach ($line in Get-Content $gitConfigPath) {
+    if (Test-Path -LiteralPath $gitConfigPath) {
+        foreach ($line in Get-Content -LiteralPath $gitConfigPath) {
             if ($line -match '^\s*branch_numbering\s*:\s*[''"]?timestamp[''"]?\s*$') {
                 $resolvedTimestamp = $true; break
             }
@@ -240,9 +240,9 @@ if (-not $resolvedTimestamp) {
 }
 if (-not $resolvedTimestamp) {
     $initOptsPath = Join-Path $repoRoot ".specify/init-options.json"
-    if (Test-Path $initOptsPath) {
+    if (Test-Path -LiteralPath $initOptsPath) {
         try {
-            $initOpts = Get-Content $initOptsPath -Raw | ConvertFrom-Json
+            $initOpts = Get-Content -LiteralPath $initOptsPath -Raw | ConvertFrom-Json
             if ($initOpts.branch_numbering -eq 'timestamp') {
                 $resolvedTimestamp = $true
             }
@@ -368,7 +368,7 @@ if (-not $DryRun) {
 
         if (-not $branchCreated) {
             $currentBranch = ''
-            try { $currentBranch = (git rev-parse --abbrev-ref HEAD 2>$null).Trim() } catch {}
+            try { $currentBranch = (git rev-parse --abbrev-ref HEAD 2>$null).Trim() } catch { Write-Verbose "Could not determine current branch: $_" }
             $existingBranch = git branch --list $branchName 2>$null
             if ($existingBranch) {
                 if ($AllowExistingBranch) {

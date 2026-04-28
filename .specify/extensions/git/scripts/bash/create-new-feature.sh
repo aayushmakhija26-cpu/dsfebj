@@ -346,6 +346,9 @@ else
     else
         BRANCH_SUFFIX=$(generate_branch_name "$FEATURE_DESCRIPTION")
     fi
+    if [ -z "$BRANCH_SUFFIX" ]; then
+        BRANCH_SUFFIX="feature"
+    fi
 
     # Warn if --number and --timestamp are both specified
     if [ "$USE_TIMESTAMP" = true ] && [ -n "$BRANCH_NUMBER" ]; then
