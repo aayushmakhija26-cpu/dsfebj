@@ -198,7 +198,6 @@ src/
            include: {
              steps: true,
              documents: true,
-             verifications: true,
            },
          });
 
@@ -216,13 +215,16 @@ src/
            membershipType: app.membershipType,
            firmType: app.firmType,
            currentStep: app.currentStepNumber,
-           steps: app.steps.map((s) => ({
-             number: s.stepNumber,
-             isComplete: s.isComplete,
-             data: s.data,
-             validationStatus: s.validationStatus,
-             validationErrors: s.validationErrors,
-           })),
+           steps: app.steps.reduce<Record<number, object>>((acc, s) => {
+             acc[s.stepNumber] = {
+               number: s.stepNumber,
+               isComplete: s.isComplete,
+               data: s.data,
+               validationStatus: s.validationStatus,
+               validationErrors: s.validationErrors,
+             };
+             return acc;
+           }, {}),
            documents: app.documents.map((d) => ({
              id: d.id,
              type: d.documentType,
@@ -252,7 +254,7 @@ src/
 4. **`prisma/schema.prisma`** (create tables for Application, ApplicationStep, Document)
    ```prisma
    model Application {
-     id                  String   @id @default(cuid())
+     id                  String   @id @default(uuid())
      applicantId         String
      applicant           Applicant @relation(fields: [applicantId], references: [id])
      applicationNumber   String   @unique
@@ -269,7 +271,7 @@ src/
    }
 
    model ApplicationStep {
-     id                  String   @id @default(cuid())
+     id                  String   @id @default(uuid())
      applicationId       String
      application         Application @relation(fields: [applicationId], references: [id])
      stepNumber          Int
@@ -284,7 +286,7 @@ src/
    }
 
    model Document {
-     id                  String   @id @default(cuid())
+     id                  String   @id @default(uuid())
      applicationId       String
      application         Application @relation(fields: [applicationId], references: [id])
      documentType        String
@@ -352,7 +354,7 @@ src/
 1. **Update Prisma** (`prisma/schema.prisma`)
    ```prisma
    model ReviewChecklistItem {
-     id              String @id @default(cuid())
+     id              String @id @default(uuid())
      applicationId   String
      category        String // 'Firm Details', 'Documents', etc.
      label           String

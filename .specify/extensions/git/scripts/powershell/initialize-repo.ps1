@@ -45,13 +45,11 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 }
 
 # Check if already a git repo
-try {
-    git rev-parse --verify HEAD 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        Write-Warning "[specify] Git repository already initialized; skipping"
-        exit 0
-    }
-} catch { }
+git rev-parse --verify HEAD 2>$null | Out-Null
+if ($LASTEXITCODE -eq 0) {
+    Write-Warning "[specify] Git repository already initialized; skipping"
+    exit 0
+}
 
 # Initialize
 try {
@@ -66,4 +64,4 @@ try {
     exit 1
 }
 
-Write-Host "✓ Git repository initialized"
+Write-Host "[OK] Git repository initialized"

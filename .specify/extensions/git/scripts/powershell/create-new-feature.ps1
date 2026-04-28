@@ -10,6 +10,7 @@ param(
     [switch]$DryRun,
     [string]$ShortName,
     [Parameter()]
+    [ValidateRange(0, [long]::MaxValue)]
     [long]$Number = 0,
     [switch]$Timestamp,
     [switch]$Help,

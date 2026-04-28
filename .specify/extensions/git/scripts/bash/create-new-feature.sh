@@ -172,7 +172,10 @@ check_existing_branches() {
             highest_branch=$highest_remote
         fi
     else
-        git fetch --all --prune >/dev/null 2>&1 || true
+        if ! git fetch --all --prune >/dev/null 2>&1; then
+            echo "Error: git fetch --all --prune failed; cannot safely allocate a branch number" >&2
+            exit 1
+        fi
         local highest_branch=$(get_highest_from_branches)
     fi
 
