@@ -266,13 +266,21 @@ cd "$REPO_ROOT"
 
 SPECS_DIR="$REPO_ROOT/specs"
 
-# Resolve effective timestamp mode: explicit flag > git-config.yml > default (sequential)
+# Resolve effective timestamp mode: explicit flag > git-config.yml > init-options.json > default (sequential)
 if [ "$USE_TIMESTAMP" = false ]; then
     _git_cfg="$REPO_ROOT/.specify/extensions/git/git-config.yml"
     if [ -f "$_git_cfg" ]; then
         _bn=$(grep -E '^\s*branch_numbering\s*:' "$_git_cfg" | \
               sed 's/.*branch_numbering[[:space:]]*:[[:space:]]*//' | \
               tr -d "\"' \t\r\n")
+        [ "$_bn" = "timestamp" ] && USE_TIMESTAMP=true
+    fi
+fi
+if [ "$USE_TIMESTAMP" = false ]; then
+    _init_opts="$REPO_ROOT/.specify/init-options.json"
+    if [ -f "$_init_opts" ]; then
+        _bn=$(grep -o '"branch_numbering"[[:space:]]*:[[:space:]]*"[^"]*"' "$_init_opts" | \
+              grep -o '"[^"]*"$' | tr -d '"')
         [ "$_bn" = "timestamp" ] && USE_TIMESTAMP=true
     fi
 fi
@@ -449,8 +457,8 @@ if $JSON_MODE; then
             _je_branch=$(json_escape "$BRANCH_NAME")
             _je_num=$(json_escape "$FEATURE_NUM")
         else
-            _je_branch="$BRANCH_NAME"
-            _je_num="$FEATURE_NUM"
+            echo "Error: --json requires json_escape from common.sh; ensure Specify core scripts are installed" >&2
+            exit 1
         fi
         if [ "$DRY_RUN" = true ]; then
             printf '{"BRANCH_NAME":"%s","FEATURE_NUM":"%s","DRY_RUN":true}\n' "$_je_branch" "$_je_num"

@@ -66,6 +66,9 @@
    ```
 
 5. **Set up local PostgreSQL:**
+
+   > **Local development only.** The credentials below (`POSTGRES_PASSWORD=dev123`) are for local dev only. Replace with secure credentials in production and never commit real secrets to version control.
+
    ```bash
    # Option A: Docker (recommended)
    docker run -d \
@@ -129,7 +132,7 @@
 
 ### Project Structure at a Glance
 
-```
+```text
 src/
 ├── app/              # Next.js pages (App Router)
 │   ├── (auth)/       # OTP login (public)
@@ -193,22 +196,26 @@ src/
      getApplicationDraft: protectedProcedure
        .input(z.object({ applicationId: z.string().uuid() }))
        .query(async ({ ctx, input }) => {
-         const app = await ctx.db.application.findUnique({
+         const stub = await ctx.db.application.findUnique({
+           where: { id: input.applicationId },
+           select: { applicantId: true },
+         });
+
+         if (!stub) {
+           throw new TRPCError({ code: "NOT_FOUND" });
+         }
+
+         if (stub.applicantId !== ctx.session.user.id) {
+           throw new TRPCError({ code: "FORBIDDEN" });
+         }
+
+         const app = await ctx.db.application.findUniqueOrThrow({
            where: { id: input.applicationId },
            include: {
              steps: true,
              documents: true,
            },
          });
-
-         if (!app) {
-           throw new TRPCError({ code: "NOT_FOUND" });
-         }
-
-         // Check: only applicant who owns this app can retrieve
-         if (app.applicantId !== ctx.session.user.id) {
-           throw new TRPCError({ code: "FORBIDDEN" });
-         }
 
          return {
            applicationId: app.id,
@@ -324,13 +331,19 @@ src/
 
 2. **Create tRPC procedure** in `src/server/api/routers/wizard.router.ts`
    ```typescript
-   submitStep: publicProcedure
+   submitStep: protectedProcedure
      .input(z.object({
        applicationId: z.string().uuid(),
        stepNumber: z.literal(6),
        data: step6Schema,
      }))
      .mutation(async ({ ctx, input }) => {
+       const app = await ctx.db.application.findUnique({
+         where: { id: input.applicationId },
+         select: { applicantId: true },
+       });
+       if (!app) throw new TRPCError({ code: "NOT_FOUND" });
+       if (app.applicantId !== ctx.session.user.id) throw new TRPCError({ code: "FORBIDDEN" });
        // Validate, save to DB, auto-save
      }),
    ```
@@ -439,7 +452,7 @@ pnpm dev 2>&1 | jq '.traceId'
 | `error: relation "Application" does not exist` | Run `pnpm prisma migrate dev` to create tables. |
 | `NEXTAUTH_SECRET not set` | Add `NEXTAUTH_SECRET="<openssl rand -base64 32>"` to `.env.local`. |
 | OTP not sending | Set `EMAIL_PROVIDER="console"` in `.env.local` to log emails to console instead of sending. |
-| Port 3000 already in use | Kill existing process: `lsof -i :3000 | kill -9 <PID>` or use `PORT=3001 pnpm dev`. |
+| Port 3000 already in use | Kill existing process: `lsof -i :3000 \| kill -9 <PID>` or use `PORT=3001 pnpm dev`. |
 
 ---
 

@@ -160,10 +160,10 @@ function ConvertTo-CleanBranchName {
 # ---------------------------------------------------------------------------
 function Find-ProjectRoot {
     param([string]$StartDir)
-    $current = Resolve-Path $StartDir
+    $current = Resolve-Path -LiteralPath $StartDir
     while ($true) {
         foreach ($marker in @('.specify', '.git')) {
-            if (Test-Path (Join-Path $current $marker)) {
+            if (Test-Path -LiteralPath (Join-Path $current $marker)) {
                 return $current
             }
         }
@@ -226,7 +226,7 @@ Set-Location $repoRoot
 
 $specsDir = Join-Path $repoRoot 'specs'
 
-# Resolve effective timestamp mode: explicit flag > git-config.yml > default (sequential)
+# Resolve effective timestamp mode: explicit flag > git-config.yml > init-options.json > default (sequential)
 $resolvedTimestamp = $Timestamp.IsPresent
 if (-not $resolvedTimestamp) {
     $gitConfigPath = Join-Path $repoRoot ".specify/extensions/git/git-config.yml"
@@ -235,6 +235,19 @@ if (-not $resolvedTimestamp) {
             if ($line -match '^\s*branch_numbering\s*:\s*[''"]?timestamp[''"]?\s*$') {
                 $resolvedTimestamp = $true; break
             }
+        }
+    }
+}
+if (-not $resolvedTimestamp) {
+    $initOptsPath = Join-Path $repoRoot ".specify/init-options.json"
+    if (Test-Path $initOptsPath) {
+        try {
+            $initOpts = Get-Content $initOptsPath -Raw | ConvertFrom-Json
+            if ($initOpts.branch_numbering -eq 'timestamp') {
+                $resolvedTimestamp = $true
+            }
+        } catch {
+            Write-Verbose "Could not parse init-options.json: $_"
         }
     }
 }
