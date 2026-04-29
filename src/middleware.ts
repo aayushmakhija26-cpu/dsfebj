@@ -8,6 +8,7 @@ const PUBLIC_ROUTES = [
   "/login/verify",
   "/public/verify",
   "/api/auth",
+  "/api/trpc",
   "/api/webhooks",
 ];
 

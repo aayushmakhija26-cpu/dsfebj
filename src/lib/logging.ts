@@ -24,6 +24,7 @@ const REDACTED_PATHS = [
   "aadhaar",
   "password",
   "totpSecret",
+  "recoveryCodes",
 ];
 
 const isDev = process.env.NODE_ENV === "development";

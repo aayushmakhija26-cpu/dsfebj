@@ -136,13 +136,13 @@ describe("step8Schema — Proposer/Seconder uniqueness", () => {
 
   it("accepts different proposer and seconder", () => {
     expect(() =>
-      step8Schema.parse({ proposerId: memberId1, secondererId: memberId2 }),
+      step8Schema.parse({ proposerId: memberId1, seconderId: memberId2 }),
     ).not.toThrow();
   });
 
   it("rejects same member as proposer and seconder", () => {
     expect(() =>
-      step8Schema.parse({ proposerId: memberId1, secondererId: memberId1 }),
+      step8Schema.parse({ proposerId: memberId1, seconderId: memberId1 }),
     ).toThrow(/different/i);
   });
 

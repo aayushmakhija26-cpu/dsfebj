@@ -40,7 +40,7 @@ export interface AuditParams {
 export async function logToAudit(ctx: TRPCContext, params: AuditParams): Promise<void> {
   await ctx.db.auditLog.create({
     data: {
-      traceId: getCurrentTraceId(),
+      traceId: ctx.traceId || getCurrentTraceId(),
       eventType: params.eventType,
       actorId: params.actorId,
       actorRole: params.actorRole,

@@ -64,7 +64,13 @@ export const createAuditLogSchema = z.object({
   reason: z.string().max(1000).optional(),
   ipAddress: z.string().optional(), // will be hashed before storage
   metadata: z.record(z.unknown()).optional(),
-  traceId: z.string().uuid().optional(),
+  // Accept both UUID and OpenTelemetry 32-char hex trace IDs
+  traceId: z
+    .string()
+    .refine((val) => /^[\da-f]{32}$/.test(val) || /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(val), {
+      message: "Invalid trace ID format",
+    })
+    .optional(),
 });
 
 export const auditLogFilterSchema = z.object({

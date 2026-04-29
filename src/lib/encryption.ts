@@ -6,9 +6,9 @@ const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
 
 function getEncryptionKey(): Buffer {
-  const keyMaterial = process.env.ENCRYPTION_KEY ?? process.env.NEXTAUTH_SECRET;
+  const keyMaterial = process.env.ENCRYPTION_KEY;
   if (!keyMaterial) {
-    throw new Error("ENCRYPTION_KEY or NEXTAUTH_SECRET must be set for field encryption");
+    throw new Error("ENCRYPTION_KEY must be set for field encryption");
   }
   // Derive 32-byte key via SHA-256 so any string input produces the right length
   return createHash("sha256").update(keyMaterial).digest();
@@ -59,8 +59,10 @@ export function hashValue(value: string): string {
 // In development, falls back to the application encryption key with a distinct salt.
 
 export async function encryptAadhaar(aadhaarNumber: string): Promise<string> {
+  if (process.env.NODE_ENV === "production" && !process.env.KMS_KEY_ID) {
+    throw new Error("Aadhaar encryption requires KMS_KEY_ID in production");
+  }
   if (process.env.NODE_ENV === "production" && process.env.KMS_KEY_ID) {
-    // KMS-backed encryption — implementation injected in Phase 7 (T150)
     throw new Error("KMS Aadhaar encryption not yet implemented — inject in Phase 7");
   }
   // Dev fallback: prefix the value so it's distinguishable
@@ -68,6 +70,9 @@ export async function encryptAadhaar(aadhaarNumber: string): Promise<string> {
 }
 
 export async function decryptAadhaar(ciphertext: string): Promise<string> {
+  if (process.env.NODE_ENV === "production" && !process.env.KMS_KEY_ID) {
+    throw new Error("Aadhaar decryption requires KMS_KEY_ID in production");
+  }
   if (process.env.NODE_ENV === "production" && process.env.KMS_KEY_ID) {
     throw new Error("KMS Aadhaar decryption not yet implemented — inject in Phase 7");
   }

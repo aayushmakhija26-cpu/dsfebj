@@ -192,7 +192,7 @@ export function hasPermission(role: AppRole, permission: Permission): boolean {
 }
 
 export function getRolePermissions(role: AppRole): Permission[] {
-  return ROLE_PERMISSIONS[role] ?? [];
+  return [...(ROLE_PERMISSIONS[role] ?? [])];
 }
 
 export function isStaffRole(role: AppRole): boolean {

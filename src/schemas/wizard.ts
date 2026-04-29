@@ -163,14 +163,14 @@ export const step7Schema = z.object({
 export const step8Schema = z
   .object({
     proposerId: z.string().uuid().optional(),
-    secondererId: z.string().uuid().optional(),
+    seconderId: z.string().uuid().optional(),
   })
   .superRefine((val, ctx) => {
-    if (val.proposerId && val.secondererId && val.proposerId === val.secondererId) {
+    if (val.proposerId && val.seconderId && val.proposerId === val.seconderId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Proposer and Seconder must be different members",
-        path: ["secondererId"],
+        path: ["seconderId"],
       });
     }
   });
