@@ -101,6 +101,7 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: build
+    if: false  # Skip Phase 1 (no E2E tests yet)
     services:
       postgres:
         image: postgres:15
@@ -163,7 +164,7 @@ jobs:
     name: Lighthouse CI
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request'
+    if: false  # Skip Phase 1 (no real pages yet)
     steps:
       - uses: actions/checkout@v4
 
