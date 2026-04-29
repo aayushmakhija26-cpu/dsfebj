@@ -66,7 +66,7 @@ export const env = createEnv({
     // ---- Rate Limiting ----
     PUBLIC_VERIFY_RATE_LIMIT: z
       .string()
-      .regex(/^\d+$/, "Must be a positive integer")
+      .regex(/^[1-9]\d*$/, "Must be a positive integer (not zero)")
       .default("100")
       .transform(Number),
 

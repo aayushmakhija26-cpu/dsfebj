@@ -102,7 +102,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## Project Structure
 
-```
+```text
 src/
 ├── app/                    # Next.js App Router pages
 │   ├── (auth)/             # Applicant OTP login

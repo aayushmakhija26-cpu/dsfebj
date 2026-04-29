@@ -158,7 +158,7 @@
     "review": {
       "title": "Application Review",
       "approveButton": "Approve",
-      "objectButton": "Raise Objection",
+      "objectionButton": "Raise Objection",
       "rejectButton": "Reject",
       "decisionReason": "Reason (required for objection or rejection)",
       "decisionReasonPlaceholder": "Provide a clear reason for the applicant...",

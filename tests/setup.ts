@@ -15,13 +15,12 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
-// Suppress console.error for expected error boundary tests
+// Suppress console.error for expected error boundary and async tests
 const originalConsoleError = console.error;
 beforeAll(() => {
   console.error = (...args: unknown[]) => {
     const msg = String(args[0]);
     if (
-      msg.includes("Warning:") ||
       msg.includes("ReactDOMTestUtils.act") ||
       msg.includes("not wrapped in act")
     ) {

@@ -21,8 +21,7 @@
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "tsx scripts/seed.ts",
-    "postinstall": "prisma generate"
+    "prisma:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
