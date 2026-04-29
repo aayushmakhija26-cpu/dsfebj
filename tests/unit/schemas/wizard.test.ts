@@ -36,19 +36,17 @@ describe("step2Schema", () => {
       designation: "Director",
       contactPhone: "+919876543210",
       contactEmail: "john@example.com",
-      emailVerified: true,
     };
     expect(step2Schema.parse(data)).toBeTruthy();
   });
 
-  it("rejects unverified email", () => {
+  it("rejects missing required fields", () => {
     expect(() =>
       step2Schema.parse({
         applicantName: "John",
         designation: "MD",
         contactPhone: "+919876543210",
-        contactEmail: "john@example.com",
-        emailVerified: false,
+        // missing contactEmail
       }),
     ).toThrow();
   });
@@ -155,7 +153,6 @@ describe("step9Schema — declarations", () => {
   const valid = {
     declarationAccepted: true,
     dpdpConsentAccepted: true,
-    emailOtpVerified: true,
   };
 
   it("accepts all accepted", () => {
@@ -171,12 +168,6 @@ describe("step9Schema — declarations", () => {
   it("rejects if DPDP consent not accepted", () => {
     expect(() =>
       step9Schema.parse({ ...valid, dpdpConsentAccepted: false }),
-    ).toThrow();
-  });
-
-  it("rejects if email OTP not verified", () => {
-    expect(() =>
-      step9Schema.parse({ ...valid, emailOtpVerified: false }),
     ).toThrow();
   });
 });

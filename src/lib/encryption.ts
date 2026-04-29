@@ -34,21 +34,35 @@ export function encrypt(plaintext: string): string {
  */
 export function decrypt(ciphertext: string): string {
   const key = getEncryptionKey();
-  const data = Buffer.from(ciphertext, "base64");
+  let data: Buffer;
+  try {
+    data = Buffer.from(ciphertext, "base64");
+  } catch {
+    throw new Error("Invalid ciphertext: failed to decode base64");
+  }
+
+  if (data.length < IV_LENGTH + AUTH_TAG_LENGTH + 1) {
+    throw new Error("Invalid ciphertext: too short");
+  }
 
   const iv = data.subarray(0, IV_LENGTH);
   const authTag = data.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
   const encrypted = data.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
 
-  const decipher = createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
-  decipher.setAuthTag(authTag);
-
-  return decipher.update(encrypted).toString("utf8") + decipher.final("utf8");
+  try {
+    const decipher = createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
+    decipher.setAuthTag(authTag);
+    return decipher.update(encrypted).toString("utf8") + decipher.final("utf8");
+  } catch {
+    throw new Error("Invalid ciphertext: decryption failed");
+  }
 }
 
 /**
- * SHA-256 hash of a value — used for hashed storage (IP addresses, OTPs).
+ * SHA-256 hash of a value — used for deterministic correlation only (IP addresses).
  * Not reversible; use for lookup/comparison only.
+ * WARNING: Do NOT use for OTPs or other low-entropy secrets — raw SHA-256 is unsuitable.
+ * For OTP storage, use a constant-time comparison library or HMAC-based verification.
  */
 export function hashValue(value: string): string {
   return createHash("sha256").update(value).digest("hex");

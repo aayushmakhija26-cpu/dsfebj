@@ -59,9 +59,6 @@ export const step2Schema = z.object({
   designation: z.string().min(2).max(50),
   contactPhone: phoneSchema,
   contactEmail: emailSchema,
-  emailVerified: z.boolean().refine((v) => v, {
-    message: "Email must be verified before proceeding",
-  }),
 });
 
 // ─── Step 3: Firm Details ─────────────────────────────────────────────────────
@@ -184,20 +181,34 @@ export const step9Schema = z.object({
   dpdpConsentAccepted: z.boolean().refine((v) => v, {
     message: "DPDP consent must be accepted",
   }),
-  emailOtpVerified: z.boolean().refine((v) => v, {
-    message: "Email OTP verification is required",
-  }),
 });
 
 // ─── Step 10: Payment ────────────────────────────────────────────────────────
 
-export const step10Schema = z.object({
-  paymentMethod: z.enum(["Online", "Offline"]),
-  paymentInitiated: z.boolean().refine((v) => v, {
-    message: "Payment must be initiated",
-  }),
-  gatewayOrderId: z.string().optional(),
-});
+export const step10Schema = z
+  .object({
+    paymentMethod: z.enum(["Online", "Offline"]),
+    paymentInitiated: z.boolean().refine((v) => v, {
+      message: "Payment must be initiated",
+    }),
+    gatewayOrderId: z.string().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.paymentMethod === "Online" && !val.gatewayOrderId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Gateway order ID is required for online payments",
+        path: ["gatewayOrderId"],
+      });
+    }
+    if (val.paymentMethod === "Offline" && val.gatewayOrderId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Gateway order ID must not be set for offline payments",
+        path: ["gatewayOrderId"],
+      });
+    }
+  });
 
 // ─── Step 11: Review & Submit ────────────────────────────────────────────────
 
@@ -217,6 +228,9 @@ export const step12Schema = z.object({
 
 // ─── Step dispatch map ────────────────────────────────────────────────────────
 
+// NOTE: For step 4 validation, use createStep4Schema(firmType) instead of WIZARD_STEP_SCHEMAS[4]
+// to enforce firm-type-specific principal minimums. The generic step4Schema here accepts
+// any number >= 1 principal and is suitable for schema type inference only.
 export const WIZARD_STEP_SCHEMAS = {
   1: step1Schema,
   2: step2Schema,

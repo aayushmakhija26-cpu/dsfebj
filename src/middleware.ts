@@ -31,7 +31,7 @@ export default auth((req: NextRequest & { auth?: unknown }) => {
   // Unauthenticated access to protected route → redirect to login
   if (!session?.user?.id) {
     const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    loginUrl.searchParams.set("callbackUrl", pathname + req.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -52,13 +52,7 @@ export default auth((req: NextRequest & { auth?: unknown }) => {
     return new NextResponse("Forbidden", { status: 403 });
   }
 
-  const response = NextResponse.next();
-
-  // Propagate user context headers for downstream tRPC context extraction
-  response.headers.set("x-user-id", session.user.id);
-  response.headers.set("x-user-type", userType ?? "");
-
-  return response;
+  return NextResponse.next();
 });
 
 export const config = {
