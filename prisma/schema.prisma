@@ -1,6 +1,5 @@
 // Prisma schema — CREDAI Pune Member Portal
-// Full entity definitions in Phase 2 (T017–T034).
-// This skeleton establishes the datasource and generator.
+// All 16 entities per data-model.md; status enums per spec.md / tasks.md T093.
 
 generator client {
   provider = "prisma-client-js"
@@ -11,6 +10,622 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================================
-// Phase 2 entities are added in T017–T034.
-// ============================================================
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserType {
+  Applicant
+  Staff
+}
+
+enum MembershipType {
+  Ordinary
+  Associate
+  RERAProject
+}
+
+enum FirmType {
+  Proprietorship
+  Partnership
+  PrivateLimited
+  LLP
+  PublicSector
+  AOP
+  CooperativeSociety
+}
+
+// Application lifecycle — names MUST match spec.md exactly (T093)
+enum ApplicationStatus {
+  Draft
+  Submitted
+  UnderScrutiny
+  AtConvenor
+  AtDirectorGeneral
+  AtSecretary
+  Approved
+  CertificateIssued
+  Rejected
+}
+
+enum ValidationStatus {
+  Valid
+  Invalid
+}
+
+enum DocumentType {
+  PAN
+  GST
+  ROC
+  RERA
+  CoC
+  ProjectProof
+  BankAccount
+  ProposerForm
+  SeconderForm
+  IncomeProof
+  OtherProof
+  SignatureImage
+  TaxInvoice
+}
+
+enum MimeType {
+  PDF       @map("application/pdf")
+  JPEG      @map("image/jpeg")
+  PNG       @map("image/png")
+}
+
+enum DocumentStatus {
+  Uploaded
+  Verified
+  Rejected
+}
+
+enum VerificationType {
+  GST
+  PAN
+}
+
+enum VerificationStatus {
+  Pending
+  Verified
+  Failed
+}
+
+enum PaymentType {
+  Online
+  Offline
+}
+
+enum PaymentStatus {
+  Pending
+  Initiated
+  Success
+  Failed
+  Reconciled
+  Reversed
+}
+
+enum PaymentGateway {
+  Razorpay
+  Cashfree
+  Manual
+}
+
+// FR-024: Cash, Cheque, NEFT, DD — IMPS is NOT an accepted offline mode
+enum OfflinePaymentMethod {
+  Cash
+  Cheque
+  NEFT
+  DD
+}
+
+enum ApprovalStage {
+  Scrutiniser
+  Convenor
+  DirectorGeneral
+  Secretary
+}
+
+enum ApprovalStatus {
+  Pending
+  Approved
+  RaisedObjection
+  Rejected
+}
+
+enum MemberStatus {
+  Active
+  RenewalDue
+  Lapsed
+  Revoked
+}
+
+enum RenewalStatus {
+  Draft
+  Submitted
+  AutoApproved
+  ManualReview
+  Approved
+  Rejected
+}
+
+enum CertificateStatus {
+  Active
+  Superseded
+  Revoked
+}
+
+enum VaultDocStatus {
+  Current
+  Superseded
+  Archived
+}
+
+enum StaffRole {
+  Scrutiniser
+  Convenor
+  DirectorGeneral
+  Secretary
+  PaymentOfficer
+  Admin
+}
+
+enum StaffStatus {
+  Active
+  Suspended
+  Archived
+}
+
+enum PresidentStatus {
+  Active
+  Historical
+}
+
+enum AuditEventType {
+  ApplicationSubmitted
+  ApplicationApproved
+  ApplicationRejected
+  ApplicationObjectionRaised
+  StaffEdited
+  DocumentUploaded
+  DocumentAccessed
+  AadhaarAccessed
+  CertificateIssued
+  CertificateRevoked
+  PaymentRecorded
+  PaymentReversed
+  LoginSuccess
+  LoginFailure
+  MFAEnrolled
+  MFAVerified
+  StaffInvited
+  StaffDisabled
+  StaffRemoved
+  DSARRequested
+  DSARResolved
+  PresidentUpdated
+  RenewalSubmitted
+  RenewalApproved
+  RenewalAutoApproved
+  MemberStatusChanged
+}
+
+enum ActorRole {
+  Applicant
+  Member
+  Scrutiniser
+  Convenor
+  DirectorGeneral
+  Secretary
+  PaymentOfficer
+  Admin
+  System
+}
+
+enum ResourceType {
+  Application
+  Member
+  Certificate
+  Payment
+  User
+  Staff
+  Document
+  Renewal
+  President
+}
+
+enum NotificationEventType {
+  OTPRequest
+  ApplicationConfirmation
+  RenewalReminder
+  QueryRaised
+  ApprovalGranted
+  RejectionNotice
+  CertificateIssued
+  PaymentReceived
+  PaymentReversed
+  StaffInvitation
+  DSARConfirmation
+}
+
+enum EmailRecipientRole {
+  Applicant
+  Member
+  Staff
+}
+
+enum EmailStatus {
+  Queued
+  Sending
+  Sent
+  Failed
+}
+
+// ─── Auth.js required models (for next-auth Prisma adapter) ──────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core Entities ────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  emailVerified DateTime?
+  phoneNumber  String?   @unique
+  userType     UserType
+  name         String?
+  image        String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLoginAt  DateTime?
+
+  applicant   Applicant?
+  staffUser   StaffUser?
+  accounts    Account[]
+  sessions    Session[]
+}
+
+model Applicant {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+}
+
+model Application {
+  id                String            @id @default(uuid())
+  applicantId       String
+  applicationNumber String            @unique
+  membershipType    MembershipType
+  firmType          FirmType
+  firmName          String            // encrypted at rest
+  firmAddress       String            // encrypted at rest
+  status            ApplicationStatus @default(Draft)
+  currentStepNumber Int               @default(1)
+  isComplete        Boolean           @default(false)
+  submittedAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  applicant            Applicant             @relation(fields: [applicantId], references: [id])
+  steps                ApplicationStep[]
+  documents            Document[]
+  externalVerifications ExternalVerification[]
+  payments             Payment[]
+  approvalDecisions    ApprovalDecision[]
+  member               Member?
+
+  @@index([applicantId, status])
+}
+
+model ApplicationStep {
+  id               String           @id @default(uuid())
+  applicationId    String
+  stepNumber       Int
+  data             Json
+  isComplete       Boolean          @default(false)
+  validationStatus ValidationStatus @default(Invalid)
+  validationErrors Json             @default("[]")
+  completedAt      DateTime?
+  lastModifiedAt   DateTime         @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationId, stepNumber])
+}
+
+model Document {
+  id            String         @id @default(uuid())
+  applicationId String
+  documentType  DocumentType
+  fileName      String
+  fileSize      Int
+  mimeType      MimeType
+  storageKey    String
+  status        DocumentStatus @default(Uploaded)
+  uploadedAt    DateTime       @default(now())
+  expiresAt     DateTime?
+  versionNumber Int            @default(1)
+  isCurrent     Boolean        @default(true)
+  replacedById  String?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  replacedBy  Document?   @relation("DocumentVersioning", fields: [replacedById], references: [id])
+  replaces    Document[]  @relation("DocumentVersioning")
+
+  @@index([applicationId, documentType, isCurrent])
+}
+
+model ExternalVerification {
+  id               String             @id @default(uuid())
+  applicationId    String
+  verificationType VerificationType
+  referenceValue   String             // encrypted (GSTIN or PAN)
+  status           VerificationStatus @default(Pending)
+  verifiedAt       DateTime?
+  failureReason    String?
+  rawResponse      Json?
+  retriesRemaining Int                @default(5)
+  nextRetryAt      DateTime?
+  lastAttemptAt    DateTime?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, verificationType])
+}
+
+model Payment {
+  id                    String               @id @default(uuid())
+  applicationId         String?
+  membershipRenewalId   String?
+  paymentType           PaymentType
+  amount                Decimal              @db.Decimal(12, 2)
+  currency              String               @default("INR")
+  status                PaymentStatus        @default(Pending)
+  gateway               PaymentGateway?
+  gatewayOrderId        String?              @unique
+  gatewayTransactionId  String?              @unique
+  offlinePaymentMethod  OfflinePaymentMethod?
+  offlineReferenceNumber String?             @unique
+  offlineReceivedDate   DateTime?
+  recordedById          String?              // Staff.id (Payment Officer)
+  notes                 String?
+  createdAt             DateTime             @default(now())
+  completedAt           DateTime?
+
+  application      Application?      @relation(fields: [applicationId], references: [id])
+  membershipRenewal MembershipRenewal? @relation(fields: [membershipRenewalId], references: [id])
+  recordedBy       StaffUser?        @relation(fields: [recordedById], references: [id])
+
+  @@index([applicationId, status])
+}
+
+model ApprovalDecision {
+  id            String         @id @default(uuid())
+  applicationId String
+  stage         ApprovalStage
+  status        ApprovalStatus @default(Pending)
+  reviewedById  String?        // StaffUser.id
+  reviewedAt    DateTime?
+  decision      String?
+  completedAt   DateTime?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewedBy  StaffUser?  @relation(fields: [reviewedById], references: [id])
+
+  @@unique([applicationId, stage])
+}
+
+model Member {
+  id             String       @id @default(uuid())
+  applicationId  String       @unique
+  membershipNumber String     @unique
+  membershipType MembershipType
+  firmName       String       // encrypted
+  contactEmail   String       // encrypted
+  contactPhone   String       // encrypted
+  status         MemberStatus @default(Active)
+  approvedAt     DateTime
+  expiryDate     DateTime
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  application          Application           @relation(fields: [applicationId], references: [id])
+  certificates         MembershipCertificate[]
+  renewals             MembershipRenewal[]
+  vaultDocuments       DocumentVault[]
+}
+
+model MembershipRenewal {
+  id              String        @id @default(uuid())
+  memberId        String
+  renewalNumber   String        @unique
+  status          RenewalStatus @default(Draft)
+  previousData    Json
+  renewalData     Json          @default("{}")
+  changesDetected Boolean       @default(false)
+  materialChanges Json          @default("[]")
+  requiredSteps   Int           @default(1)
+  currentStep     Int           @default(1)
+  submittedAt     DateTime?
+  approvedAt      DateTime?
+  autoApprovedAt  DateTime?
+  newExpiryDate   DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  member   Member    @relation(fields: [memberId], references: [id])
+  payments Payment[]
+}
+
+model MembershipCertificate {
+  id                        String            @id @default(uuid())
+  memberId                  String
+  certificateNumber         String            @unique
+  membershipType            MembershipType
+  firmName                  String            // encrypted
+  presidentName             String            // encrypted snapshot at issuance
+  presidentSignatureImageKey String
+  certHash                  String
+  issuedAt                  DateTime          @default(now())
+  validityStartDate         DateTime
+  validityEndDate           DateTime
+  status                    CertificateStatus @default(Active)
+  supersededById            String?
+  revokedAt                 DateTime?
+  revokedReason             String?
+  pdfStorageKey             String
+  qrCodeData                String
+  createdAt                 DateTime          @default(now())
+
+  member       Member                 @relation(fields: [memberId], references: [id])
+  supersededBy MembershipCertificate? @relation("CertificateVersioning", fields: [supersededById], references: [id])
+  supersedes   MembershipCertificate[] @relation("CertificateVersioning")
+}
+
+model DocumentVault {
+  id            String        @id @default(uuid())
+  memberId      String
+  documentType  DocumentType
+  fileName      String
+  storageKey    String
+  fileSize      Int
+  mimeType      MimeType
+  uploadedAt    DateTime      @default(now())
+  expiresAt     DateTime?
+  status        VaultDocStatus @default(Current)
+  supersededAt  DateTime?
+  supersededById String?
+  isSearchable  Boolean       @default(true)
+
+  member       Member         @relation(fields: [memberId], references: [id])
+  supersededBy DocumentVault? @relation("VaultVersioning", fields: [supersededById], references: [id])
+  supersedes   DocumentVault[] @relation("VaultVersioning")
+}
+
+model StaffUser {
+  id                    String      @id @default(uuid())
+  userId                String      @unique
+  role                  StaffRole
+  fullName              String      // encrypted
+  status                StaffStatus @default(Active)
+  totpSecret            String?     // encrypted
+  totpEnrolledAt        DateTime?
+  totpVerifiedAt        DateTime?
+  recoveryCodes         String[]    // hashed
+  lastPasswordChangedAt DateTime?
+  sessionTimeout        Int         @default(1800) // 30 min idle in seconds
+  createdAt             DateTime    @default(now())
+  createdById           String?
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdBy        StaffUser?         @relation("StaffHierarchy", fields: [createdById], references: [id])
+  invitedStaff     StaffUser[]        @relation("StaffHierarchy")
+  approvalDecisions ApprovalDecision[]
+  recordedPayments  Payment[]
+}
+
+model AuditLog {
+  id           String         @id @default(uuid())
+  timestamp    DateTime       @default(now())
+  traceId      String?
+  eventType    AuditEventType
+  actorId      String
+  actorRole    ActorRole
+  resourceType ResourceType
+  resourceId   String
+  beforeState  Json?
+  afterState   Json?
+  reason       String?
+  ipAddress    String?        // SHA-256 hashed
+  metadata     Json?
+
+  @@index([timestamp])
+  @@index([actorId])
+  @@index([eventType])
+  @@index([resourceId])
+  @@index([traceId])
+}
+
+model President {
+  id                String          @id @default(uuid())
+  fullName          String          // encrypted
+  emailAddress      String          // encrypted
+  phone             String          // encrypted
+  signatureImageKey String
+  startDate         DateTime
+  endDate           DateTime?
+  status            PresidentStatus @default(Active)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Single-active-president enforced via PostgreSQL partial unique index in migration:
+  // CREATE UNIQUE INDEX president_single_active ON "President" (status) WHERE status = 'Active';
+  @@index([status])
+}
+
+model NotificationTemplate {
+  id          String                @id @default(uuid())
+  eventType   NotificationEventType @unique
+  templateKey String                @unique
+  subject     String
+  bodyHtml    String
+  isActive    Boolean               @default(true)
+
+  emailEvents EmailEvent[]
+}
+
+model EmailEvent {
+  id               String             @id @default(uuid())
+  templateId       String
+  recipientEmail   String             // encrypted
+  recipientRole    EmailRecipientRole
+  status           EmailStatus        @default(Queued)
+  renderedSubject  String
+  renderedBody     String
+  failureReason    String?
+  sentAt           DateTime?
+  retriesRemaining Int                @default(3)
+  nextRetryAt      DateTime?
+  createdAt        DateTime           @default(now())
+
+  template NotificationTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([status, nextRetryAt])
+}
