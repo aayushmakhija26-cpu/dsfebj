@@ -23,6 +23,9 @@ export default defineConfig({
         "src/app/**",     // Next.js pages tested via E2E
         "src/env.js",
         "src/**/index.ts",
+        "src/server/**",  // Phase 2+ (tRPC, database)
+        "src/i18n/**",    // Phase 2+ (internationalization)
+        "src/middleware.ts", // Phase 2+ (auth, RBAC)
         "node_modules",
       ],
       thresholds: {
