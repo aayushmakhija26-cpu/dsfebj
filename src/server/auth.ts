@@ -2,7 +2,6 @@ import "server-only";
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import EmailProvider from "next-auth/providers/email";
 import { db } from "./db";
 
 // Session/JWT type extensions
@@ -26,20 +25,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
 
   providers: [
-    // Applicants authenticate via email OTP (magic link / email verification)
-    EmailProvider({
-      // Configured via environment; console provider used in development
-      from: process.env.EMAIL_FROM ?? "noreply@credaipune.org",
-      sendVerificationRequest: async ({ identifier: email, url }) => {
-        if (process.env.NODE_ENV === "development") {
-          console.info(`[Auth] OTP/magic-link for ${email}: ${url}`);
-          return;
-        }
-        // Production: delegate to email queue (Phase 3 implementation)
-        throw new Error("Email provider not configured for production");
-      },
-    }),
-
     // Staff authenticate via email + password (TOTP enforced separately per-request)
     CredentialsProvider({
       id: "staff-credentials",
@@ -69,6 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
+    // Applicant OTP provider re-added in Phase 3 with email queue implementation
   ],
 
   session: {
