@@ -1,6 +1,6 @@
 import "server-only";
 import { TRPCError } from "@trpc/server";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { type TRPCContext } from "../trpc";
 import { type AuditEventType, type ActorRole, type ResourceType } from "@/schemas/audit";
 import { getCurrentTraceId } from "@/lib/tracing";

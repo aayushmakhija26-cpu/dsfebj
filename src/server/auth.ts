@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       from: process.env.EMAIL_FROM ?? "noreply@credaipune.org",
       sendVerificationRequest: async ({ identifier: email, url }) => {
         if (process.env.NODE_ENV === "development") {
-          console.log(`[Auth] OTP/magic-link for ${email}: ${url}`);
+          console.info(`[Auth] OTP/magic-link for ${email}: ${url}`);
           return;
         }
         // Production: delegate to email queue (Phase 3 implementation)

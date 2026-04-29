@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { hasPermission } from "@/lib/rbac";
 import { encrypt, decrypt, hashValue } from "@/lib/encryption";
 

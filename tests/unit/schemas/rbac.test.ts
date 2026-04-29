@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { hasPermission, getRolePermissions, isStaffRole, APPROVAL_STAGE_ROLE } from "@/lib/rbac";
+import { hasPermission, isStaffRole, APPROVAL_STAGE_ROLE } from "@/lib/rbac";
 
 describe("hasPermission", () => {
   it("Applicant can create and submit applications", () => {
