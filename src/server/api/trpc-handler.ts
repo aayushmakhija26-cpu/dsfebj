@@ -1,15 +1,21 @@
-/**
- * tRPC HTTP handler — Phase 2 stub.
- * Full initialization in T052 (Phase 2).
- */
-export const GET = () =>
-  new Response("tRPC endpoint — Phase 2 not implemented", {
-    status: 501,
-    headers: { "Content-Type": "text/plain" },
+import "server-only";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { type NextRequest } from "next/server";
+import { appRouter } from "./root";
+import { createTRPCContext } from "./trpc";
+
+const handler = (req: NextRequest) =>
+  fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req,
+    router: appRouter,
+    createContext: () => createTRPCContext(req),
+    onError:
+      process.env.NODE_ENV === "development"
+        ? ({ path, error }) => {
+            console.error(`tRPC error on ${path ?? "unknown"}:`, error);
+          }
+        : undefined,
   });
 
-export const POST = () =>
-  new Response("tRPC endpoint — Phase 2 not implemented", {
-    status: 501,
-    headers: { "Content-Type": "text/plain" },
-  });
+export { handler as GET, handler as POST };

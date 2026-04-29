@@ -1,6 +1,11 @@
 import "@testing-library/jest-dom";
 import { vi, beforeAll, afterAll } from "vitest";
 
+// Set test encryption key
+if (!process.env.ENCRYPTION_KEY) {
+  process.env.ENCRYPTION_KEY = "test-encryption-key-for-unit-tests-32-chars-long";
+}
+
 // Mock next/navigation for unit tests
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),

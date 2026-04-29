@@ -93,49 +93,49 @@ Establish core backend infrastructure: database schema, authentication framework
 
 ### Phase 2 Tasks
 
-- [ ] T017 [P] Create Prisma schema (`prisma/schema.prisma`) with all 16 entities: User, Applicant, Application, ApplicationStep, Document, ExternalVerification, Payment, ApprovalDecision, Member, MembershipRenewal, MembershipCertificate, DocumentVault, StaffUser, AuditLog, President, NotificationTemplate/EmailEvent
-- [ ] T018 [P] Create Prisma migration for User identity table (email unique, phoneNumber unique, userType enum, timestamps)
-- [ ] T019 [P] Create Prisma migration for Applicant join table (userId FK, timestamps)
-- [ ] T020 [P] Create Prisma migration for Application table with membershipType, firmType, status state machine, encrypted fields (firmName, firmAddress), step tracking, timestamps
-- [ ] T021 Create Prisma migration for ApplicationStep table with step number, JSON data, isComplete flag, validation status + errors JSON, timestamps
-- [ ] T022 Create Prisma migration for Document table with documentType, fileSize, MIME type, Vercel Blob storageKey, version tracking (isCurrent, replacedBy), status enum, timestamps
-- [ ] T023 Create Prisma migration for ExternalVerification table (GST + PAN status, reference value encrypted, retry tracking, raw response JSON, timestamps)
-- [ ] T024 Create Prisma migration for Payment table with amount, status, gateway/offline tracking, unique constraints on gatewayOrderId and offlineReferenceNumber, timestamps
-- [ ] T025 Create Prisma migration for ApprovalDecision table (4 stages, status enum, reviewedBy FK, decision reason, timestamps) with unique constraint on (applicationId, stage)
-- [ ] T026 Create Prisma migration for Member table with membershipNumber unique, status enum, expiry date, timestamps
-- [ ] T027 Create Prisma migration for MembershipRenewal table with previousData + renewalData JSON, changeDetection, auto-approval logic tracking, timestamps
-- [ ] T028 Create Prisma migration for MembershipCertificate table with certificateNumber unique, president snapshot fields (name, signature image key), cert hash for tamper-evidence, validity dates, status enum, timestamps
-- [ ] T029 Create Prisma migration for DocumentVault table (member archive) with versioning + supersession tracking, timestamps
-- [ ] T030 Create Prisma migration for StaffUser table with role enum, TOTP secret (encrypted), recovery codes (hashed), session timeout config, timestamps
-- [ ] T031 Create Prisma migration for AuditLog table (append-only) with: timestamp (indexed), eventType enum, actorId + actorRole, resourceType + resourceId, beforeState/afterState JSON, reason, ipAddress (hashed), metadata JSON; add database constraint preventing UPDATE/DELETE
-- [ ] T032 Create Prisma migration for President table with fullName (encrypted), signature image key, tenure start/end dates, status enum (Active/Historical), unique constraint on status='Active'; add trigger to enforce single Active President
-- [ ] T033 Create Prisma migration for NotificationTemplate table (eventType enum, templateKey, subject + bodyHtml with placeholders, isActive flag)
-- [ ] T034 Create Prisma migration for EmailEvent table with templateId FK, recipientEmail (encrypted), status enum, rendered subject/body, retries tracking, timestamps
+- [x] T017 [P] Create Prisma schema (`prisma/schema.prisma`) with all 16 entities: User, Applicant, Application, ApplicationStep, Document, ExternalVerification, Payment, ApprovalDecision, Member, MembershipRenewal, MembershipCertificate, DocumentVault, StaffUser, AuditLog, President, NotificationTemplate/EmailEvent
+- [x] T018 [P] Create Prisma migration for User identity table (email unique, phoneNumber unique, userType enum, timestamps)
+- [x] T019 [P] Create Prisma migration for Applicant join table (userId FK, timestamps)
+- [x] T020 [P] Create Prisma migration for Application table with membershipType, firmType, status state machine, encrypted fields (firmName, firmAddress), step tracking, timestamps
+- [x] T021 Create Prisma migration for ApplicationStep table with step number, JSON data, isComplete flag, validation status + errors JSON, timestamps
+- [x] T022 Create Prisma migration for Document table with documentType, fileSize, MIME type, Vercel Blob storageKey, version tracking (isCurrent, replacedBy), status enum, timestamps
+- [x] T023 Create Prisma migration for ExternalVerification table (GST + PAN status, reference value encrypted, retry tracking, raw response JSON, timestamps)
+- [x] T024 Create Prisma migration for Payment table with amount, status, gateway/offline tracking, unique constraints on gatewayOrderId and offlineReferenceNumber, timestamps
+- [x] T025 Create Prisma migration for ApprovalDecision table (4 stages, status enum, reviewedBy FK, decision reason, timestamps) with unique constraint on (applicationId, stage)
+- [x] T026 Create Prisma migration for Member table with membershipNumber unique, status enum, expiry date, timestamps
+- [x] T027 Create Prisma migration for MembershipRenewal table with previousData + renewalData JSON, changeDetection, auto-approval logic tracking, timestamps
+- [x] T028 Create Prisma migration for MembershipCertificate table with certificateNumber unique, president snapshot fields (name, signature image key), cert hash for tamper-evidence, validity dates, status enum, timestamps
+- [x] T029 Create Prisma migration for DocumentVault table (member archive) with versioning + supersession tracking, timestamps
+- [x] T030 Create Prisma migration for StaffUser table with role enum, TOTP secret (encrypted), recovery codes (hashed), session timeout config, timestamps
+- [x] T031 Create Prisma migration for AuditLog table (append-only) with: timestamp (indexed), eventType enum, actorId + actorRole, resourceType + resourceId, beforeState/afterState JSON, reason, ipAddress (hashed), metadata JSON; add database constraint preventing UPDATE/DELETE
+- [x] T032 Create Prisma migration for President table with fullName (encrypted), signature image key, tenure start/end dates, status enum (Active/Historical), unique constraint on status='Active'; add trigger to enforce single Active President
+- [x] T033 Create Prisma migration for NotificationTemplate table (eventType enum, templateKey, subject + bodyHtml with placeholders, isActive flag)
+- [x] T034 Create Prisma migration for EmailEvent table with templateId FK, recipientEmail (encrypted), status enum, rendered subject/body, retries tracking, timestamps
 - [ ] T035 Run all migrations to database: `npm run prisma migrate deploy`
-- [ ] T036 Create `src/server/db.ts` exporting Prisma client singleton with connection pooling and error handling
-- [ ] T037 [P] Create `src/schemas/common.ts` with reusable Zod validators: email, phone (E.164 format), UUID, encrypted-field marker, date range
-- [ ] T038 [P] Create `src/schemas/user.ts` with User identity schemas (email, phone, userType)
-- [ ] T039 Create `src/schemas/application.ts` with Application + ApplicationStep schemas (membershipType, firmType, status enum, step data structure)
-- [ ] T040 Create `src/schemas/document.ts` with Document schema (documentType enum, MIME type, size validation ≤10MB, format enum [PDF, JPEG, PNG])
-- [ ] T041 Create `src/schemas/payment.ts` with Payment schema (online + offline variants, amount, status enum, gateway/offline method enum, reference uniqueness)
-- [ ] T042 Create `src/schemas/audit.ts` with AuditLog schema (eventType enum, resource type/ID, beforeState/afterState JSON, reason text)
-- [ ] T043 Create `src/schemas/email.ts` with EmailEvent schema (eventType enum, recipientEmail, templateVariables JSON)
-- [ ] T044 Create master `src/schemas/wizard.ts` with 12-step conditional Zod schemas for all membership type + firm type combinations (e.g., Partnership ≥2 partners, Associate requires Ordinary proposer)
-- [ ] T045 Create `src/server/auth.ts` configuring Auth.js v5 with NextAuth email provider (OTP for applicants) + credentials provider (password for staff), session strategy (JWT or database), secrets management
-- [ ] T046 [P] Create `src/lib/encryption.ts` with AES-256 encryption/decryption utilities for at-rest field encryption; separate key management for Aadhaar envelope encryption
-- [ ] T047 Create `src/lib/rbac.ts` with role definitions (7 roles: Applicant, Member, Scrutiniser, Convenor, Director General, Secretary, Payment Officer, Admin) and permission matrix (which roles can access which endpoints)
-- [ ] T048 Create `src/lib/logging.ts` with structured pino logger configured for JSON output + PII redaction middleware (masks firm names, emails, PAN, Aadhaar before emission)
-- [ ] T049 Create `src/lib/tracing.ts` with OpenTelemetry trace initialization, trace ID propagation utilities, span creation helpers
-- [ ] T050 Create `src/lib/constants.ts` exporting membership types, firm types, role names, document types, and configurable values (grace period, grace period days, OTP expiry, session timeouts)
-- [ ] T051 [P] Create `src/middleware.ts` with Auth.js session middleware + RBAC permission check + AuditLog append middleware; enforce on all non-public routes
-- [ ] T052 Create `src/server/api/trpc.ts` tRPC initialization with Zod input validator + Auth context provider
-- [ ] T053 Create `src/server/api/root.ts` tRPC root router mounting all sub-routers (auth, wizard, approval, payment, renewal, vault, member, admin)
-- [ ] T054 Create `src/server/api/routers/trpc-utils.ts` with helper procedures for common patterns (isAuthenticated, hasRole, logToAudit)
-- [ ] T055 [P] Create Sentry initialization (`src/lib/sentry.ts`) with environment-based configuration, error tracking, and performance monitoring setup (avoid PII in error messages)
-- [ ] T056 Create `tests/fixtures/` with seed data: test applicant accounts, test staff accounts (one per role), test applications at various workflow stages, test payments (online + offline), test documents
-- [ ] T057 Create unit test file `tests/unit/schemas/` covering Zod validation for all schemas (valid data accepts, invalid data rejects)
-- [ ] T058 Create integration test file `tests/integration/` for auth middleware, RBAC enforcement, audit logging with test data
-- [ ] T059 Commit foundational infrastructure with message "feat: initialize database schema, auth framework, validation schemas, and middleware infrastructure"
+- [x] T036 Create `src/server/db.ts` exporting Prisma client singleton with connection pooling and error handling
+- [x] T037 [P] Create `src/schemas/common.ts` with reusable Zod validators: email, phone (E.164 format), UUID, encrypted-field marker, date range
+- [x] T038 [P] Create `src/schemas/user.ts` with User identity schemas (email, phone, userType)
+- [x] T039 Create `src/schemas/application.ts` with Application + ApplicationStep schemas (membershipType, firmType, status enum, step data structure)
+- [x] T040 Create `src/schemas/document.ts` with Document schema (documentType enum, MIME type, size validation ≤10MB, format enum [PDF, JPEG, PNG])
+- [x] T041 Create `src/schemas/payment.ts` with Payment schema (online + offline variants, amount, status enum, gateway/offline method enum, reference uniqueness)
+- [x] T042 Create `src/schemas/audit.ts` with AuditLog schema (eventType enum, resource type/ID, beforeState/afterState JSON, reason text)
+- [x] T043 Create `src/schemas/email.ts` with EmailEvent schema (eventType enum, recipientEmail, templateVariables JSON)
+- [x] T044 Create master `src/schemas/wizard.ts` with 12-step conditional Zod schemas for all membership type + firm type combinations (e.g., Partnership ≥2 partners, Associate requires Ordinary proposer)
+- [x] T045 Create `src/server/auth.ts` configuring Auth.js v5 with NextAuth email provider (OTP for applicants) + credentials provider (password for staff), session strategy (JWT or database), secrets management
+- [x] T046 [P] Create `src/lib/encryption.ts` with AES-256 encryption/decryption utilities for at-rest field encryption; separate key management for Aadhaar envelope encryption
+- [x] T047 Create `src/lib/rbac.ts` with role definitions (7 roles: Applicant, Member, Scrutiniser, Convenor, Director General, Secretary, Payment Officer, Admin) and permission matrix (which roles can access which endpoints)
+- [x] T048 Create `src/lib/logging.ts` with structured pino logger configured for JSON output + PII redaction middleware (masks firm names, emails, PAN, Aadhaar before emission)
+- [x] T049 Create `src/lib/tracing.ts` with OpenTelemetry trace initialization, trace ID propagation utilities, span creation helpers
+- [x] T050 Create `src/lib/constants.ts` exporting membership types, firm types, role names, document types, and configurable values (grace period, grace period days, OTP expiry, session timeouts)
+- [x] T051 [P] Create `src/middleware.ts` with Auth.js session middleware + RBAC permission check + AuditLog append middleware; enforce on all non-public routes
+- [x] T052 Create `src/server/api/trpc.ts` tRPC initialization with Zod input validator + Auth context provider
+- [x] T053 Create `src/server/api/root.ts` tRPC root router mounting all sub-routers (auth, wizard, approval, payment, renewal, vault, member, admin)
+- [x] T054 Create `src/server/api/routers/trpc-utils.ts` with helper procedures for common patterns (isAuthenticated, hasRole, logToAudit)
+- [x] T055 [P] Create Sentry initialization (`src/lib/sentry.ts`) with environment-based configuration, error tracking, and performance monitoring setup (avoid PII in error messages)
+- [x] T056 Create `tests/fixtures/` with seed data: test applicant accounts, test staff accounts (one per role), test applications at various workflow stages, test payments (online + offline), test documents
+- [x] T057 Create unit test file `tests/unit/schemas/` covering Zod validation for all schemas (valid data accepts, invalid data rejects)
+- [x] T058 Create integration test file `tests/integration/` for auth middleware, RBAC enforcement, audit logging with test data
+- [x] T059 Commit foundational infrastructure with message "feat: initialize database schema, auth framework, validation schemas, and middleware infrastructure"
 
 ---
 
