@@ -162,45 +162,45 @@ Enable prospective real-estate developer firms to register, complete a 12-step a
 
 ### Phase 3 Tasks
 
-- [ ] T060 [US1] Create `src/app/(auth)/` folder structure for applicant authentication (OTP flow)
-- [ ] T061 [US1] Create `src/app/(auth)/login/page.tsx` with email input, OTP request button, and error display
-- [ ] T062 [US1] Create `src/app/(auth)/login/verify/page.tsx` with OTP code input, verify button, and resend logic
-- [ ] T063 [US1] Create `src/server/api/routers/auth.router.ts` implementing auth procedures: `requestOtp()`, `verifyOtp()`, `staffLogin()`, `verifyTOTP()` with rate limiting and OTP expiry enforcement
-- [ ] T064 [US1] [P] Create `src/services/auth/otp.ts` with OTP generation (6 digits), expiry tracking (2 min), brute-force protection (max 3 requests per hour per email)
-- [ ] T065 [US1] [P] Create `src/services/auth/sessions.ts` with session creation, timeout enforcement (30 min idle / 8 h absolute for staff), and revocation logic
-- [ ] T066 [US1] Create `src/app/(apply)/` folder structure for applicant wizard UI
-- [ ] T067 [US1] Create `src/app/(apply)/[step]/page.tsx` dynamic route handling steps 1–12 with step component resolution
-- [ ] T068 [US1] Create wizard step components in `src/components/wizard/`:
-  - [ ] T069 `WizardStepRail.tsx` showing step 1–12 progress, current step highlight, clickable navigation (with validation block if step incomplete)
-  - [ ] T070 `Step1_MembershipFirmType.tsx` (Membership Type + Firm Type selection with Documents You'll Need checklist)
-  - [ ] T071 `Step2_ApplicantDetails.tsx` (Applicant name, designation, contact, email verification)
-  - [ ] T072 `Step3_FirmDetails.tsx` (Firm name, address, GSTIN, PAN, MahaRERA#; triggers GST/PAN verification on blur)
-  - [ ] T073 `Step4_DirectorsPartners.tsx` (Dynamic firm-type-specific principal list: ≥1 for Proprietor, ≥2 for Partnership/LLP, etc.; DIN/address per principal)
-  - [ ] T074 `Step5_ProjectsExperience.tsx` (Completed Projects for Ordinary; Commencement Projects for Ordinary/Associate; project details + certificate upload)
-  - [ ] T075 `Step6_Financials.tsx` (Audited financials, bank account details, revenue turnover; conditional based on firm type)
-  - [ ] T076 `Step7_DocumentUpload.tsx` (Proposer/Seconder Recommendation Form, Code of Conduct, Self Declaration; templates downloadable + upload with validation)
-  - [ ] T077 `Step8_Proposer_Seconder.tsx` (For Associate: dropdown list of approved Ordinary Members; same member cannot be Proposer + Seconder)
-  - [ ] T078 `Step9_ComplianceDeclaration.tsx` (Declaration checkbox, DPDP consent checkboxes, OTP verification of email)
-  - [ ] T079 `Step10_PaymentFeeBreakdown.tsx` (Display entrance + annual subscription + GST, online/offline payment buttons)
-  - [ ] T080 `Step11_ReviewSubmit.tsx` (Read-only summary of all entered data, final submission button with declaration acceptance)
-  - [ ] T081 `Step12_SubmissionConfirmation.tsx` (Confirmation page with application number, next steps, support contact)
-- [ ] T082 [US1] [P] Create `src/components/wizard/AutoSaveIndicator.tsx` showing draft save status (Saving... → Saved) with timestamp
-- [ ] T083 [US1] [P] Create `src/components/wizard/ConditionalFieldGroup.tsx` for rendering fields based on membership + firm type logic
-- [ ] T084 [US1] Create `src/components/wizard/DocumentUploadCard.tsx` for file upload with drag-drop, format/size validation, preview, and version tracking
-- [ ] T085 [US1] Create `src/server/api/routers/wizard.router.ts` implementing wizard procedures: `getApplicationDraft()`, `submitStep()`, `getDocumentsYouNeed()`, `submitApplication()`
-- [ ] T086 [US1] [P] Create `src/services/wizard/draftPersistence.ts` with auto-save logic (every 30s or on field blur), draft loading, and resume from step
-- [ ] T087 [US1] [P] Create `src/services/wizard/stepValidation.ts` with per-step validation logic using Zod schemas; return validation errors with field paths
-- [ ] T088 [US1] Create `src/services/external/gst/index.ts` adapter interface `IGSTVerificationService` with provider implementations: `gstn-public.ts` (GSTN free API), `cdsl-licensed.ts` (licensed reseller, fallback)
-- [ ] T089 [US1] Create `src/services/external/pan/index.ts` adapter interface `IPANVerificationService` with `protean.ts` (Protean API)
-- [ ] T090 [US1] [P] Create `src/services/jobs/externalVerification.ts` pg-boss worker for GST/PAN verification with exponential backoff (1s, 2s, 4s, 8s, 16s, 32s), max 5 retries, non-blocking submission
-- [ ] T091 [US1] Create `src/services/vault/documentUpload.ts` with file validation (format [PDF, JPEG, PNG], size ≤10MB), Vercel Blob storage, versioning, and metadata tracking
-- [ ] T092 [US1] [P] Create `src/server/api/routers/vault.router.ts` implementing vault procedures: document upload, retrieval, versioning, supersession tracking
-- [ ] T093 [US1] Create `src/services/workflow/stateMachine.ts` implementing explicit state machine for application status transitions; state enum values MUST match spec.md entity definitions exactly: Draft → Submitted → UnderScrutiny → AtConvenor → AtDirectorGeneral → AtSecretary → Approved → CertificateIssued | Rejected (do NOT use plan.md shorthand names: "Verification", "Convenor Approval", "DG Approval", "Secretary Approval")
-- [ ] T094 [US1] Create unit tests `tests/unit/services/wizard/stepValidation.test.ts` validating all 12 wizard steps with valid/invalid data
-- [ ] T095 [US1] Create unit tests `tests/unit/services/external/` for GST/PAN verification mocks with success/failure/timeout scenarios
-- [ ] T096 [US1] Create E2E test `tests/e2e/wizard.spec.ts`: register → complete 12 steps for Partnership Ordinary → upload documents → submit application → verify confirmation email
-- [ ] T097 [US1] Create E2E test `tests/e2e/wizard-draft.spec.ts`: start wizard → save draft → logout → login → resume from step 5 → complete application
-- [ ] T098 [US1] Commit new member wizard with message "feat(US1): implement 12-step adaptive membership wizard for Ordinary Membership with auto-save and draft resumption"
+- [x] T060 [US1] Create `src/app/(auth)/` folder structure for applicant authentication (OTP flow)
+- [x] T061 [US1] Create `src/app/(auth)/login/page.tsx` with email input, OTP request button, and error display
+- [x] T062 [US1] Create `src/app/(auth)/login/verify/page.tsx` with OTP code input, verify button, and resend logic
+- [x] T063 [US1] Create `src/server/api/routers/auth.router.ts` implementing auth procedures: `requestOtp()`, `verifyOtp()`, `staffLogin()`, `verifyTOTP()` with rate limiting and OTP expiry enforcement
+- [x] T064 [US1] [P] Create `src/services/auth/otp.ts` with OTP generation (6 digits), expiry tracking (2 min), brute-force protection (max 3 requests per hour per email)
+- [x] T065 [US1] [P] Create `src/services/auth/sessions.ts` with session creation, timeout enforcement (30 min idle / 8 h absolute for staff), and revocation logic
+- [x] T066 [US1] Create `src/app/(apply)/` folder structure for applicant wizard UI
+- [x] T067 [US1] Create `src/app/(apply)/[step]/page.tsx` dynamic route handling steps 1–12 with step component resolution
+- [x] T068 [US1] Create wizard step components in `src/components/wizard/`:
+  - [x] T069 `WizardStepRail.tsx` showing step 1–12 progress, current step highlight, clickable navigation (with validation block if step incomplete)
+  - [x] T070 `Step1_MembershipFirmType.tsx` (Membership Type + Firm Type selection with Documents You'll Need checklist)
+  - [x] T071 `Step2_ApplicantDetails.tsx` (Applicant name, designation, contact, email verification)
+  - [x] T072 `Step3_FirmDetails.tsx` (Firm name, address, GSTIN, PAN, MahaRERA#; triggers GST/PAN verification on blur)
+  - [x] T073 `Step4_DirectorsPartners.tsx` (Dynamic firm-type-specific principal list: ≥1 for Proprietor, ≥2 for Partnership/LLP, etc.; DIN/address per principal)
+  - [x] T074 `Step5_ProjectsExperience.tsx` (Completed Projects for Ordinary; Commencement Projects for Ordinary/Associate; project details + certificate upload)
+  - [x] T075 `Step6_Financials.tsx` (Audited financials, bank account details, revenue turnover; conditional based on firm type)
+  - [x] T076 `Step7_DocumentUpload.tsx` (Proposer/Seconder Recommendation Form, Code of Conduct, Self Declaration; templates downloadable + upload with validation)
+  - [x] T077 `Step8_Proposer_Seconder.tsx` (For Associate: dropdown list of approved Ordinary Members; same member cannot be Proposer + Seconder)
+  - [x] T078 `Step9_ComplianceDeclaration.tsx` (Declaration checkbox, DPDP consent checkboxes, OTP verification of email)
+  - [x] T079 `Step10_PaymentFeeBreakdown.tsx` (Display entrance + annual subscription + GST, online/offline payment buttons)
+  - [x] T080 `Step11_ReviewSubmit.tsx` (Read-only summary of all entered data, final submission button with declaration acceptance)
+  - [x] T081 `Step12_SubmissionConfirmation.tsx` (Confirmation page with application number, next steps, support contact)
+- [x] T082 [US1] [P] Create `src/components/wizard/AutoSaveIndicator.tsx` showing draft save status (Saving... → Saved) with timestamp
+- [x] T083 [US1] [P] Create `src/components/wizard/ConditionalFieldGroup.tsx` for rendering fields based on membership + firm type logic
+- [x] T084 [US1] Create `src/components/wizard/DocumentUploadCard.tsx` for file upload with drag-drop, format/size validation, preview, and version tracking
+- [x] T085 [US1] Create `src/server/api/routers/wizard.router.ts` implementing wizard procedures: `getApplicationDraft()`, `submitStep()`, `getDocumentsYouNeed()`, `submitApplication()`
+- [x] T086 [US1] [P] Create `src/services/wizard/draftPersistence.ts` with auto-save logic (every 30s or on field blur), draft loading, and resume from step
+- [x] T087 [US1] [P] Create `src/services/wizard/stepValidation.ts` with per-step validation logic using Zod schemas; return validation errors with field paths
+- [x] T088 [US1] Create `src/services/external/gst/index.ts` adapter interface `IGSTVerificationService` with provider implementations: `gstn-public.ts` (GSTN free API), `cdsl-licensed.ts` (licensed reseller, fallback)
+- [x] T089 [US1] Create `src/services/external/pan/index.ts` adapter interface `IPANVerificationService` with `protean.ts` (Protean API)
+- [x] T090 [US1] [P] Create `src/services/jobs/externalVerification.ts` pg-boss worker for GST/PAN verification with exponential backoff (1s, 2s, 4s, 8s, 16s, 32s), max 5 retries, non-blocking submission
+- [x] T091 [US1] Create `src/services/vault/documentUpload.ts` with file validation (format [PDF, JPEG, PNG], size ≤10MB), Vercel Blob storage, versioning, and metadata tracking
+- [x] T092 [US1] [P] Create `src/server/api/routers/vault.router.ts` implementing vault procedures: document upload, retrieval, versioning, supersession tracking
+- [x] T093 [US1] Create `src/services/workflow/stateMachine.ts` implementing explicit state machine for application status transitions; state enum values MUST match spec.md entity definitions exactly: Draft → Submitted → UnderScrutiny → AtConvenor → AtDirectorGeneral → AtSecretary → Approved → CertificateIssued | Rejected (do NOT use plan.md shorthand names: "Verification", "Convenor Approval", "DG Approval", "Secretary Approval")
+- [x] T094 [US1] Create unit tests `tests/unit/services/wizard/stepValidation.test.ts` validating all 12 wizard steps with valid/invalid data
+- [x] T095 [US1] Create unit tests `tests/unit/services/external/` for GST/PAN verification mocks with success/failure/timeout scenarios
+- [x] T096 [US1] Create E2E test `tests/e2e/wizard.spec.ts`: register → complete 12 steps for Partnership Ordinary → upload documents → submit application → verify confirmation email
+- [x] T097 [US1] Create E2E test `tests/e2e/wizard-draft.spec.ts`: start wizard → save draft → logout → login → resume from step 5 → complete application
+- [x] T098 [US1] Commit new member wizard with message "feat(US1): implement 12-step adaptive membership wizard for Ordinary Membership with auto-save and draft resumption"
 
 ---
 
