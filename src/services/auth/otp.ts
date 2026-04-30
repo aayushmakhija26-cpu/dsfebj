@@ -96,9 +96,7 @@ export async function verifyOTP(email: string, code: string): Promise<OTPVerifyR
     return { success: false, error: "invalid" };
   }
 
-  // Valid — clean up and upsert user
-  await db.verificationToken.delete({ where: { identifier_token: { identifier: record.identifier, token: record.token } } });
-
+  // Valid OTP — upsert user (don't delete OTP yet, let authorize function do it)
   const user = await db.user.upsert({
     where: { email },
     create: {

@@ -80,6 +80,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user) return null;
 
+        // Clean up OTP token after successful sign-in
+        await db.verificationToken.deleteMany({
+          where: { identifier: `otp:${credentials.email}` },
+        });
+
         return {
           id: user.id,
           email: user.email,
