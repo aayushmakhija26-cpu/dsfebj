@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 const schema = z.object({
   code: z
@@ -40,7 +41,8 @@ function VerifyPageInner() {
     setServerError(null);
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/auth/otp/verify", {
+      // Step 1: Verify OTP on server
+      const verifyRes = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -49,15 +51,28 @@ function VerifyPageInner() {
         }),
       });
 
-      const json = (await res.json()) as { error?: string; success?: boolean };
+      const verifyJson = (await verifyRes.json()) as { error?: string; success?: boolean };
 
-      if (!res.ok) {
-        setServerError(json.error ?? "Invalid or expired passcode. Please try again.");
+      if (!verifyRes.ok) {
+        setServerError(verifyJson.error ?? "Invalid or expired passcode. Please try again.");
         setIsSubmitting(false);
         return;
       }
 
-      // Success — navigate to wizard
+      // Step 2: Sign in via NextAuth to create session
+      const signInResult = await signIn("applicant-otp", {
+        email,
+        code: data.code,
+        redirect: false,
+      });
+
+      if (!signInResult || signInResult.error) {
+        setServerError("Failed to create session. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 3: Navigate to wizard
       router.replace("/apply/1");
     } catch (err) {
       console.error("Verify error:", err);
@@ -172,8 +187,6 @@ function VerifyPageInner() {
                   outline: "none",
                   boxSizing: "border-box",
                 }}
-                onFocus={(e) => { if (!errors.code) e.currentTarget.style.borderColor = "#1B3A6B"; }}
-                onBlur={(e) => { if (!errors.code) e.currentTarget.style.borderColor = "#d1d5db"; }}
                 {...register("code")}
               />
               {errors.code && (

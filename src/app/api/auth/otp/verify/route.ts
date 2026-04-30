@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyOTP } from "@/services/auth/otp";
-import { signIn } from "@/server/auth";
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -23,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   const { email, code } = parsed.data;
 
-  // Verify OTP
+  // Verify OTP — this creates/upserts the user in the database
   const result = await verifyOTP(email, code);
 
   if (!result.success) {
@@ -33,19 +32,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // OTP is valid, sign in the user
-  const signInResult = await signIn("applicant-otp", {
-    email,
-    code,
-    redirect: false,
-  });
-
-  if (!signInResult || signInResult.error) {
-    return NextResponse.json(
-      { error: "Failed to sign in" },
-      { status: 500 },
-    );
-  }
-
-  return NextResponse.json({ success: true });
+  // OTP is valid and user exists — client will handle sign-in via NextAuth
+  return NextResponse.json({ success: true, userId: result.userId });
 }
