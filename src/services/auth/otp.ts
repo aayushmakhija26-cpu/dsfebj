@@ -1,6 +1,5 @@
 import "server-only";
 import { db } from "@/server/db";
-import { logger } from "@/lib/logging";
 import {
   OTP_LENGTH,
   OTP_EXPIRY_SECONDS,
@@ -43,7 +42,7 @@ export async function requestOTP(email: string): Promise<OTPRequestResult> {
   });
 
   if (recentCount >= OTP_MAX_REQUESTS_PER_HOUR) {
-    logger.warn({ email }, "OTP rate limit exceeded");
+    console.warn(`OTP rate limit exceeded for ${email}`);
     return { success: false, error: "rate_limited" };
   }
 
@@ -64,7 +63,7 @@ export async function requestOTP(email: string): Promise<OTPRequestResult> {
     },
   });
 
-  logger.info({ email }, "OTP generated");
+  console.log(`OTP generated for ${email}`);
   return { success: true };
 }
 
@@ -111,7 +110,7 @@ export async function verifyOTP(email: string, code: string): Promise<OTPVerifyR
     select: { id: true },
   });
 
-  logger.info({ email, userId: user.id }, "OTP verified");
+  console.log(`OTP verified for ${email} (user ${user.id})`);
   return { success: true, userId: user.id };
 }
 

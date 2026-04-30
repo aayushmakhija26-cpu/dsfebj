@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requestOTP, getStoredOTPCode } from "@/services/auth/otp";
-import { logger } from "@/lib/logging";
 
 const bodySchema = z.object({ email: z.string().email() });
 
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
   // For development, log the OTP so it can be retrieved without email setup.
   if (process.env.NODE_ENV === "development") {
     const code = await getStoredOTPCode(email);
-    logger.info({ email, otp: code }, "DEV: OTP generated — check logs");
+    console.log(`🔐 OTP for ${email}: ${code}`);
   }
 
   return NextResponse.json({ sent: true });
