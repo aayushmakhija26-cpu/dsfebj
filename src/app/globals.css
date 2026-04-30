@@ -85,7 +85,7 @@
 
   /* Skip navigation link for screen readers */
   .skip-nav {
-    @apply absolute -top-full left-0 z-50 bg-primary px-4 py-2 text-primary-foreground focus:top-0;
+    @apply fixed -top-full left-0 z-50 bg-primary px-4 py-2 text-primary-foreground focus:top-0;
   }
 }
 
