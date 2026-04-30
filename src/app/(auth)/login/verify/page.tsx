@@ -46,14 +46,18 @@ function VerifyPageInner() {
         code: data.code,
         redirect: false,
       });
-      if (result?.error) {
+
+      if (!result || result.error || !result.ok) {
         setServerError("Invalid or expired passcode. Please try again.");
+        setIsSubmitting(false);
         return;
       }
+
+      // Success — navigate to wizard
       router.replace("/apply/1");
-    } catch {
+    } catch (err) {
+      console.error("Sign in error:", err);
       setServerError("Network error. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   }
