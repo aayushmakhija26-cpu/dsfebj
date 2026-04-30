@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
 
 const schema = z.object({
   code: z
@@ -41,14 +40,19 @@ function VerifyPageInner() {
     setServerError(null);
     setIsSubmitting(true);
     try {
-      const result = await signIn("applicant-otp", {
-        email,
-        code: data.code,
-        redirect: false,
+      const res = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          code: data.code,
+        }),
       });
 
-      if (!result || result.error || !result.ok) {
-        setServerError("Invalid or expired passcode. Please try again.");
+      const json = (await res.json()) as { error?: string; success?: boolean };
+
+      if (!res.ok) {
+        setServerError(json.error ?? "Invalid or expired passcode. Please try again.");
         setIsSubmitting(false);
         return;
       }
@@ -56,7 +60,7 @@ function VerifyPageInner() {
       // Success — navigate to wizard
       router.replace("/apply/1");
     } catch (err) {
-      console.error("Sign in error:", err);
+      console.error("Verify error:", err);
       setServerError("Network error. Please try again.");
       setIsSubmitting(false);
     }
