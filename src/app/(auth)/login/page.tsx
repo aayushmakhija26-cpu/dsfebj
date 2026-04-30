@@ -45,33 +45,47 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
+    <div
+      className="flex min-h-screen items-center justify-center px-4"
+      style={{ backgroundColor: "#f0f4f8" }}
+    >
       <div className="w-full max-w-md">
-        {/* Card Container */}
-        <div className="rounded-lg border border-border bg-card shadow-xl">
-          {/* Header Section */}
-          <div className="border-b border-border px-6 py-8 text-center sm:px-8">
-            <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">C</span>
+        {/* Card */}
+        <div className="overflow-hidden rounded-2xl bg-white shadow-2xl">
+          {/* Navy header band */}
+          <div
+            className="px-8 py-10 text-center"
+            style={{ backgroundColor: "#1B3A6B" }}
+          >
+            <div
+              className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full"
+              style={{ backgroundColor: "#E8601C" }}
+            >
+              <span className="text-xl font-extrabold text-white">C</span>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">CredAI</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Member Portal
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+              CREDAI
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: "#b8cce4" }}>
+              Pune Member Portal
             </p>
           </div>
 
-          {/* Form Section */}
-          <div className="px-6 py-8 sm:px-8">
-            <div className="mb-6 space-y-2">
-              <h2 className="text-xl font-semibold text-foreground">Welcome back</h2>
-              <p className="text-sm text-muted-foreground">
-                Enter your email address and we'll send you a one-time passcode to sign in
-              </p>
-            </div>
+          {/* Form body */}
+          <div className="px-8 py-8">
+            <h2 className="mb-1 text-xl font-semibold text-gray-900">
+              Sign in
+            </h2>
+            <p className="mb-6 text-sm text-gray-500">
+              Enter your email to receive a one-time passcode
+            </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-              <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              <div className="space-y-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email address
                 </label>
                 <input
@@ -79,65 +93,41 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   autoFocus
-                  placeholder="you@example.com"
+                  placeholder="you@company.com"
                   aria-invalid={errors.email ? "true" : undefined}
                   aria-describedby={errors.email ? "email-error" : undefined}
-                  className={`w-full rounded-lg border px-4 py-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 ${
-                    errors.email
-                      ? "border-destructive bg-background text-foreground focus-visible:ring-destructive focus-visible:ring-offset-background"
-                      : "border-input bg-background text-foreground focus-visible:ring-primary focus-visible:ring-offset-background placeholder:text-muted-foreground"
-                  }`}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50"
+                  style={errors.email ? { borderColor: "#ef4444", backgroundColor: "#fef2f2" } : {}}
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p id="email-error" role="alert" className="flex items-center text-xs font-medium text-destructive">
-                    <span className="mr-1">⚠</span>
+                  <p id="email-error" role="alert" className="text-xs text-red-600">
                     {errors.email.message}
                   </p>
                 )}
               </div>
 
               {serverError && (
-                <div role="alert" className="rounded-lg border border-destructive bg-background p-3 text-sm text-destructive">
-                  <div className="flex">
-                    <span className="mr-2">✕</span>
-                    <span>{serverError}</span>
-                  </div>
+                <div
+                  role="alert"
+                  className="rounded-lg p-3 text-sm text-red-700"
+                  style={{ backgroundColor: "#fef2f2", border: "1px solid #fca5a5" }}
+                >
+                  {serverError}
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all hover:shadow-lg hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="mt-2 w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ backgroundColor: "#1B3A6B" }}
               >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center">
-                    <span className="mr-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></span>
-                    Sending…
-                  </span>
-                ) : (
-                  "Send passcode"
-                )}
+                {isSubmitting ? "Sending…" : "Send passcode"}
               </button>
             </form>
-
-            <p className="mt-6 text-center text-xs text-muted-foreground">
-              Don't have an account?{" "}
-              <a href="/signup" className="font-medium text-primary hover:underline">
-                Create one
-              </a>
-            </p>
           </div>
         </div>
-
-        {/* Footer Info */}
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          By signing in, you agree to our{" "}
-          <a href="#" className="text-primary hover:underline">
-            Terms of Service
-          </a>
-        </p>
       </div>
     </div>
   );
