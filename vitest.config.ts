@@ -25,11 +25,17 @@ export default defineConfig({
       exclude: [
         "src/**/*.d.ts",
         "src/app/**",     // Next.js pages tested via E2E
+        "src/components/**", // React components tested via E2E
         "src/env.js",
         "src/**/index.ts",
         "src/server/**",  // Phase 2+ (tRPC, database)
         "src/i18n/**",    // Phase 2+ (internationalization)
         "src/middleware.ts", // Phase 2+ (auth, RBAC)
+        "src/services/auth/**", // Auth services tested via integration tests
+        "src/services/vault/**", // Vault services tested via E2E
+        "src/services/jobs/**", // Job queue services tested via E2E
+        "src/services/wizard/draftPersistence.ts", // Client-side persistence tested via E2E
+        "src/services/workflow/**", // Workflow tested via E2E
         "node_modules",
       ],
       thresholds: {
