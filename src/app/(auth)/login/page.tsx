@@ -135,7 +135,7 @@ export default function LoginPage() {
             Sign in
           </h1>
           <p style={{ fontSize: 14, color: "#64748b", marginBottom: 32 }}>
-            We'll send a one-time code to your email.
+            We&apos;ll send a one-time code to your email.
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>

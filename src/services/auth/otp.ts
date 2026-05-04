@@ -14,6 +14,7 @@ function generateOTP(): string {
     // Use crypto.getRandomValues for secure random generation
     const array = new Uint8Array(1);
     crypto.getRandomValues(array);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     otp += digits[array[0]! % 10];
   }
   return otp;
@@ -63,7 +64,7 @@ export async function requestOTP(email: string): Promise<OTPRequestResult> {
     },
   });
 
-  console.log(`OTP generated for ${email}`);
+  console.info(`OTP generated for ${email}`);
   return { success: true };
 }
 
@@ -108,7 +109,7 @@ export async function verifyOTP(email: string, code: string): Promise<OTPVerifyR
     select: { id: true },
   });
 
-  console.log(`OTP verified for ${email} (user ${user.id})`);
+  console.info(`OTP verified for ${email} (user ${user.id})`);
   return { success: true, userId: user.id };
 }
 

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 const schema = z.object({
@@ -142,9 +143,9 @@ function VerifyPageInner() {
           </div>
 
           <div style={{ marginBottom: 8 }}>
-            <a href="/login" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <Link href="/login" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
               ← Back
-            </a>
+            </Link>
           </div>
 
           <h1 style={{ fontSize: 26, fontWeight: 700, color: "#0f172a", marginBottom: 6, marginTop: 16 }}>
@@ -226,7 +227,7 @@ function VerifyPageInner() {
           </form>
 
           <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid #e2e8f0", textAlign: "center" }}>
-            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 12 }}>Didn't receive a code?</p>
+            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 12 }}>Didn&apos;t receive a code?</p>
             <button
               type="button"
               onClick={handleResend}

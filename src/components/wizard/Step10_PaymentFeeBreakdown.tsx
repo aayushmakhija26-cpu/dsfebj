@@ -23,17 +23,16 @@ export function Step10_PaymentFeeBreakdown({ applicationId, membershipType = "Or
   const router = useRouter();
 
   const {
-    register,
-    handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<Step10Data>({
     resolver: zodResolver(step10Schema),
     defaultValues: { paymentMethod: "Online", paymentInitiated: false },
   });
 
   const paymentMethod = watch("paymentMethod");
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const fees = FEES[membershipType] ?? FEES.Ordinary!;
   const subtotal = fees.entrance + fees.annual;
   const cgst = Math.round(subtotal * CGST_RATE_PERCENT / 100);

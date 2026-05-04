@@ -34,7 +34,7 @@ export default function DashboardPage() {
       return;
     }
 
-    fetchApplications(session.user.email);
+    void fetchApplications(session.user.email);
   }, [session, status, router]);
 
   async function fetchApplications(email: string) {
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                         </p>
                         <div style={{ padding: "12px", backgroundColor: "#f0fdf4", borderRadius: "6px", borderLeft: "3px solid #22c55e" }}>
                           <p style={{ fontSize: "13px", color: "#166534", margin: 0 }}>
-                            ✓ Your application is under review. We'll notify you of any updates.
+                            ✓ Your application is under review. We&apos;ll notify you of any updates.
                           </p>
                         </div>
                       </div>

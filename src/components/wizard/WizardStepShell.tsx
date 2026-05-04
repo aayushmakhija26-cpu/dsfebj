@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { clsx } from "clsx";
 import { WIZARD_TOTAL_STEPS } from "@/lib/constants";
 
 interface Props {

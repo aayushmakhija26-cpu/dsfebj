@@ -75,6 +75,7 @@ export function Step11_ReviewSubmit({ applicationId }: Props) {
       isSubmitting={isSubmitting}
       nextLabel="Submit Application"
     >
+      {/* eslint-disable @typescript-eslint/no-non-null-assertion */}
       <div style={{display:"flex",flexDirection:"column",gap:"16px"}}>
         {loading ? (
           <div style={{borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#f8fafc",padding:"16px"}}>
@@ -213,6 +214,7 @@ export function Step11_ReviewSubmit({ applicationId }: Props) {
           </>
         )}
       </div>
+      {/* eslint-enable @typescript-eslint/no-non-null-assertion */}
 
       {isAlreadySubmitted ? (
         <div style={{borderRadius:"6px",backgroundColor:"#dcfce7",border:"1px solid #86efac",padding:"16px",marginTop:"16px"}}>

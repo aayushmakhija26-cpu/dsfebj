@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
               Introduction
             </h2>
             <p style={{ marginBottom: "16px" }}>
-              CREDAI Pune ("we," "us," "our," or "Company") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our membership portal website and use our services.
+              CREDAI Pune (&quot;we,&quot; &quot;us,&quot; &quot;our,&quot; or &quot;Company&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our membership portal website and use our services.
             </p>
 
             <h2 style={{ fontSize: "18px", fontWeight: 600, color: "#0f172a", marginTop: "32px", marginBottom: "12px" }}>
@@ -90,7 +90,7 @@ export default function PrivacyPolicyPage() {
               Policy Changes
             </h2>
             <p>
-              We may update this Privacy Policy from time to time. We will notify you of significant changes by updating the "Last updated" date at the top of this page.
+              We may update this Privacy Policy from time to time. We will notify you of significant changes by updating the &quot;Last updated&quot; date at the top of this page.
             </p>
           </div>
         </div>

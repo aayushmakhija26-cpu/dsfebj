@@ -72,7 +72,6 @@ export function WizardStepRail({ currentStep, applicationId, completedSteps = ne
             opacity: isLocked || isStep8Skipped ? 0.5 : 1,
             backgroundColor: isCurrent ? "#EFF4FF" : "transparent",
             color: isCurrent ? "#1B3A6B" : "#374151",
-            title: isStep8Skipped ? "Not required for your membership type" : undefined,
           };
 
           const badgeStyle: React.CSSProperties = {
@@ -93,7 +92,7 @@ export function WizardStepRail({ currentStep, applicationId, completedSteps = ne
           return (
             <li key={step}>
               {isLocked || isStep8Skipped ? (
-                <span aria-disabled="true" style={itemStyle}>
+                <span aria-disabled="true" title={isStep8Skipped ? "Not required for your membership type" : undefined} style={itemStyle}>
                   <span style={badgeStyle} aria-hidden="true">{isStep8Skipped ? "–" : (isComplete ? "✓" : step)}</span>
                   {STEP_LABELS[step]}
                 </span>
