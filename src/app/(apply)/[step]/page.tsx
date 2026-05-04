@@ -49,17 +49,18 @@ export default async function WizardStepPage({ params, searchParams }: Props) {
 
   // Check membership type to conditionally skip Step 8 (Proposer & Seconder) for non-Associate members
   if (stepNumber === 8 && applicationId) {
+    let membershipType: string | undefined;
     try {
       const draftData = await loadDraft(applicationId);
       const step1Data = draftData[1] as { membershipType?: string } | undefined;
-      const membershipType = step1Data?.membershipType;
-
-      // Skip Step 8 for Ordinary and RERAProject membership
-      if (membershipType && membershipType !== "Associate") {
-        redirect(`/9?applicationId=${applicationId}`);
-      }
+      membershipType = step1Data?.membershipType;
     } catch {
       // If we can't load draft, allow Step 8 to show
+    }
+
+    // Redirect outside try/catch so NEXT_REDIRECT exception is not swallowed
+    if (membershipType && membershipType !== "Associate") {
+      redirect(`/9?applicationId=${applicationId}`);
     }
   }
 

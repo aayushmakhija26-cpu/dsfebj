@@ -97,17 +97,23 @@ export async function verifyOTP(email: string, code: string): Promise<OTPVerifyR
     return { success: false, error: "invalid" };
   }
 
-  // Valid OTP — upsert user (don't delete OTP yet, let authorize function do it)
-  const user = await db.user.upsert({
-    where: { email },
-    create: {
-      email,
-      userType: "Applicant",
-      applicant: { create: {} },
-    },
-    update: {},
-    select: { id: true },
-  });
+  // Valid OTP — atomically upsert user and consume OTP in transaction to prevent replay
+  const [user] = await db.$transaction([
+    db.user.upsert({
+      where: { email },
+      create: {
+        email,
+        userType: "Applicant",
+        applicant: { create: {} },
+      },
+      update: {},
+      select: { id: true },
+    }),
+    // Consume OTP by deleting it atomically with user upsert
+    db.verificationToken.delete({
+      where: { identifier_token: { identifier: record.identifier, token: record.token } },
+    }),
+  ]);
 
   console.info(`OTP verified for ${email} (user ${user.id})`);
   return { success: true, userId: user.id };

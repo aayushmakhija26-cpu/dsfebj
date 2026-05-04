@@ -10,6 +10,21 @@ export const vaultRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       if (!input.applicationId) return { documents: [] };
 
+      // Verify the application belongs to the current user
+      const application = await ctx.db.application.findUnique({
+        where: { id: input.applicationId },
+        select: { applicantId: true },
+      });
+      if (!application) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const applicant = await ctx.db.applicant.findUnique({
+        where: { userId: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!applicant || application.applicantId !== applicant.id) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
       const docs = await ctx.db.document.findMany({
         where: { applicationId: input.applicationId, isCurrent: true },
         orderBy: { uploadedAt: "desc" },
@@ -23,6 +38,21 @@ export const vaultRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const doc = await ctx.db.document.findUnique({ where: { id: input.documentId } });
       if (!doc) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Verify the document's application belongs to the current user
+      const application = await ctx.db.application.findUnique({
+        where: { id: doc.applicationId },
+        select: { applicantId: true },
+      });
+      if (!application) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const applicant = await ctx.db.applicant.findUnique({
+        where: { userId: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!applicant || application.applicantId !== applicant.id) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
 
       await logToAudit(ctx, {
         eventType: "DocumentAccessed",
@@ -49,6 +79,21 @@ export const vaultRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const existing = await ctx.db.document.findUnique({ where: { id: input.documentId } });
       if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Verify the document's application belongs to the current user
+      const application = await ctx.db.application.findUnique({
+        where: { id: existing.applicationId },
+        select: { applicantId: true },
+      });
+      if (!application) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const applicant = await ctx.db.applicant.findUnique({
+        where: { userId: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!applicant || application.applicantId !== applicant.id) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
 
       const [, newDoc] = await ctx.db.$transaction([
         ctx.db.document.update({
