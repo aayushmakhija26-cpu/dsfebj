@@ -22,6 +22,10 @@ export default defineConfig({
       reporter: ["text", "json", "html", "lcov"],
       reportsDirectory: "./coverage",
       include: ["src/**/*.{ts,tsx}"],
+      // Exclusion strategy: Core business logic (schemas, utils) is unit-tested.
+      // UI layer (app, components) and services with external dependencies (auth, vault, jobs, workflow)
+      // are validated via integration and E2E tests rather than unit tests to ensure
+      // correct behavior under realistic conditions. See the test plan for coverage details.
       exclude: [
         "src/**/*.d.ts",
         "src/app/**",     // Next.js pages tested via E2E

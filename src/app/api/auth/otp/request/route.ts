@@ -18,7 +18,13 @@ export async function POST(req: NextRequest) {
   }
 
   const { email } = parsed.data;
-  const result = await requestOTP(email);
+  let result;
+  try {
+    result = await requestOTP(email);
+  } catch (error) {
+    console.error("OTP generation error:", error);
+    return NextResponse.json({ error: "Failed to generate OTP." }, { status: 500 });
+  }
 
   if (!result.success) {
     if (result.error === "rate_limited") {
@@ -31,13 +37,13 @@ export async function POST(req: NextRequest) {
   }
 
   // In production, enqueue an email with the OTP code.
-  // For development, log the OTP so it can be retrieved without email setup.
+  // For development, log a non-sensitive debug message.
   if (process.env.NODE_ENV === "development") {
     try {
-      const code = await getStoredOTPCode(email);
-      console.info(`🔐 OTP: ${code}`);
+      await getStoredOTPCode(email);
+      console.info(`🔐 OTP generated for ${email}`);
     } catch (error) {
-      console.error("Failed to retrieve OTP code:", error);
+      console.error("Failed to retrieve OTP code for debugging:", error instanceof Error ? error.message : "Unknown error");
     }
   }
 
