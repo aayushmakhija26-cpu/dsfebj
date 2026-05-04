@@ -33,8 +33,12 @@ export async function POST(req: NextRequest) {
   // In production, enqueue an email with the OTP code.
   // For development, log the OTP so it can be retrieved without email setup.
   if (process.env.NODE_ENV === "development") {
-    const code = await getStoredOTPCode(email);
-    console.info(`🔐 OTP for ${email}: ${code}`);
+    try {
+      const code = await getStoredOTPCode(email);
+      console.info(`🔐 OTP: ${code}`);
+    } catch (error) {
+      console.error("Failed to retrieve OTP code:", error);
+    }
   }
 
   return NextResponse.json({ sent: true });

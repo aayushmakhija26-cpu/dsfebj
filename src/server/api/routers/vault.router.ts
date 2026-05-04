@@ -2,7 +2,24 @@ import "server-only";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import type { TRPCContext } from "../trpc";
 import { logToAudit } from "./trpc-utils";
+
+async function assertApplicationOwner(ctx: TRPCContext, applicationId: string) {
+  const application = await ctx.db.application.findUnique({
+    where: { id: applicationId },
+    select: { applicantId: true },
+  });
+  if (!application) throw new TRPCError({ code: "NOT_FOUND" });
+
+  const applicant = await ctx.db.applicant.findUnique({
+    where: { userId: ctx.session.user.id },
+    select: { id: true },
+  });
+  if (!applicant || application.applicantId !== applicant.id) {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }
+}
 
 export const vaultRouter = createTRPCRouter({
   listDocuments: protectedProcedure
@@ -10,20 +27,7 @@ export const vaultRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       if (!input.applicationId) return { documents: [] };
 
-      // Verify the application belongs to the current user
-      const application = await ctx.db.application.findUnique({
-        where: { id: input.applicationId },
-        select: { applicantId: true },
-      });
-      if (!application) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const applicant = await ctx.db.applicant.findUnique({
-        where: { userId: ctx.session.user.id },
-        select: { id: true },
-      });
-      if (!applicant || application.applicantId !== applicant.id) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
+      await assertApplicationOwner(ctx, input.applicationId);
 
       const docs = await ctx.db.document.findMany({
         where: { applicationId: input.applicationId, isCurrent: true },
@@ -39,20 +43,7 @@ export const vaultRouter = createTRPCRouter({
       const doc = await ctx.db.document.findUnique({ where: { id: input.documentId } });
       if (!doc) throw new TRPCError({ code: "NOT_FOUND" });
 
-      // Verify the document's application belongs to the current user
-      const application = await ctx.db.application.findUnique({
-        where: { id: doc.applicationId },
-        select: { applicantId: true },
-      });
-      if (!application) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const applicant = await ctx.db.applicant.findUnique({
-        where: { userId: ctx.session.user.id },
-        select: { id: true },
-      });
-      if (!applicant || application.applicantId !== applicant.id) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
+      await assertApplicationOwner(ctx, doc.applicationId);
 
       await logToAudit(ctx, {
         eventType: "DocumentAccessed",
@@ -80,27 +71,19 @@ export const vaultRouter = createTRPCRouter({
       const existing = await ctx.db.document.findUnique({ where: { id: input.documentId } });
       if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
 
-      // Verify the document's application belongs to the current user
-      const application = await ctx.db.application.findUnique({
-        where: { id: existing.applicationId },
-        select: { applicantId: true },
-      });
-      if (!application) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const applicant = await ctx.db.applicant.findUnique({
-        where: { userId: ctx.session.user.id },
-        select: { id: true },
-      });
-      if (!applicant || application.applicantId !== applicant.id) {
-        throw new TRPCError({ code: "FORBIDDEN" });
+      if (!existing.isCurrent) {
+        throw new TRPCError({ code: "CONFLICT", message: "Cannot supersede an archived document" });
       }
 
-      const [, newDoc] = await ctx.db.$transaction([
-        ctx.db.document.update({
+      await assertApplicationOwner(ctx, existing.applicationId);
+
+      const newDoc = await ctx.db.$transaction(async (tx) => {
+        await tx.document.update({
           where: { id: input.documentId },
           data: { isCurrent: false, status: "Rejected" },
-        }),
-        ctx.db.document.create({
+        });
+
+        const created = await tx.document.create({
           data: {
             applicationId: existing.applicationId,
             documentType: existing.documentType,
@@ -112,8 +95,19 @@ export const vaultRouter = createTRPCRouter({
             status: "Uploaded",
             replacedById: existing.id,
           },
-        }),
-      ]);
+        });
+
+        return created;
+      });
+
+      await logToAudit(ctx, {
+        eventType: "DocumentSuperseded",
+        actorId: ctx.session.user.id,
+        actorRole: "Applicant",
+        resourceType: "Document",
+        resourceId: existing.id,
+        ipAddress: ctx.req.headers.get("x-forwarded-for") ?? undefined,
+      });
 
       return { documentId: newDoc.id };
     }),

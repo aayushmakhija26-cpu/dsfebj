@@ -1,6 +1,6 @@
-"use client";
-
 import Link from "next/link";
+
+const POLICY_LAST_UPDATED = "March 1, 2026";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
           </h1>
 
           <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px" }}>
-            Last updated: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            Last updated: {POLICY_LAST_UPDATED}
           </p>
 
           <div style={{ fontSize: "14px", color: "#374151", lineHeight: "1.8" }}>

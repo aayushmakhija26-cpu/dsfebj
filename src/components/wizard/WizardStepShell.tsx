@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { WIZARD_TOTAL_STEPS } from "@/lib/constants";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
   isSubmitting?: boolean;
   nextLabel?: string;
   hideBack?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function WizardStepShell({
@@ -35,7 +36,7 @@ export function WizardStepShell({
     if (onBack) { onBack(); return; }
     const prev = step - 1;
     if (prev < 1) return;
-    const url = applicationId ? `/${prev}?applicationId=${applicationId}` : `/${prev}`;
+    const url = applicationId ? `/${prev}?applicationId=${encodeURIComponent(applicationId)}` : `/${prev}`;
     router.push(url);
   }
 
