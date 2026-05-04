@@ -49,11 +49,6 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
-        {/* Skip navigation for keyboard/screen-reader users */}
-        <a href="#main-content" className="skip-nav">
-          Skip to main content
-        </a>
-
         <main id="main-content">{children}</main>
         <Toaster richColors position="top-right" />
       </body>

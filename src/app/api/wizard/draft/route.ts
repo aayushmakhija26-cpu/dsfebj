@@ -89,5 +89,5 @@ export async function GET(req: NextRequest) {
     steps[step.stepNumber] = step.data;
   }
 
-  return NextResponse.json({ applicationId, steps });
+  return NextResponse.json({ applicationId, steps, applicationStatus: application.status });
 }

@@ -40,99 +40,133 @@
 
 ## 2. Wizard Flow — All 12 Steps
 
-### 2.1 Step 1 — Membership Firm Type (`/apply/1`)
-- [ ] Page title: "Membership Firm Type"
+### 2.1 Step 1 — Membership Type & Firm Type (`/1`)
+- [ ] Page title: "Membership Type & Firm Type"
 - [ ] Subtitle explains membership categories
-- [ ] Three radio buttons visible:
-  - "Individual" 
-  - "Proprietorship"
-  - "Partnership/LLP"
-  - "Company/Corporation"
+- [ ] Two dropdown selects visible:
+  - "Membership Type": Ordinary, Associate, RERAProject
+  - "Firm Type": Proprietorship, Partnership, PrivateLimited, LLP, PublicSector, AOP, CooperativeSociety
 
 **Test Cases**:
-- [ ] Click "Next" without selecting → form validates (error shown)
-- [ ] Select "Company/Corporation" → click "Next" → saves draft → redirects to `/apply/2?applicationId=...`
-- [ ] Navigate back to `/apply/1?applicationId=...` → previously selected value is restored
+- [ ] Click "Continue" without selecting both fields → form validates (errors shown for both)
+- [ ] Select "Ordinary" → select "PrivateLimited" → click "Continue" → saves draft → redirects to `/2?applicationId=...`
+- [ ] Navigate back to `/1?applicationId=...` → previously selected values are restored
 - [ ] Auto-save triggers every 30 seconds (watch network tab for `/api/wizard/draft` POST requests)
+- [ ] Select membership type → documents list appears below showing required documents for that type
 
-### 2.2 Step 2 — Firm Information
-- [ ] Form title: "Firm Information"
-- [ ] Input fields appear based on selected firm type (if "Company" selected):
-  - "Company Name" (text)
-  - "Registration Number" (text)
-  - "Date of Registration" (date picker)
-  - "Business Category" (dropdown)
-
-**Test Cases**:
-- [ ] Leave fields empty → error "Required"
-- [ ] Fill in all fields → click "Next" → draft saves → redirects to `/apply/3`
-- [ ] Go back to step 1, change firm type to "Proprietorship" → navigate to step 2 → form fields change to match proprietorship
-- [ ] Try invalid date → validation error
-
-### 2.3 Step 3 — Promoters/Directors
-- [ ] Form title: "Promoters/Directors"
-- [ ] Add button to add promoters
-- [ ] Each promoter has: Name, Email, Contact, Designation, % Stake
+### 2.2 Step 2 — Applicant Details (`/2`)
+- [ ] Form title: "Applicant Details"
+- [ ] Description: "Primary contact person for this application."
+- [ ] Input fields visible:
+  - "Full Name" (text)
+  - "Designation" (text)
+  - "Mobile Number" (tel)
+  - "Email Address" (email)
 
 **Test Cases**:
-- [ ] Click "Add Promoter" → new promoter row added
+- [ ] Leave fields empty → error "Required" on all fields
+- [ ] Fill in all fields with valid data → click "Continue" → draft saves → redirects to `/3?applicationId=...`
+- [ ] Go back to `/2?applicationId=...` → values should be restored
+- [ ] Test email validation (try invalid email format)
+- [ ] Test mobile format validation
+
+### 2.3 Step 3 — Firm Details (`/3`)
+- [ ] Form title: "Firm Details"
+- [ ] Description: "Legal details of your firm. GSTIN and PAN will be automatically verified."
+- [ ] Input fields visible:
+  - "Firm Name" (text)
+  - "Firm Address" (textarea)
+  - "City" (text)
+  - "PIN Code" (text, max 6 digits)
+  - "GSTIN" (text, format: 22AAAAA0000A1Z5)
+  - "PAN Number" (text, format: so)
+  - "MahaRERA Registration Number" (optional)
+  - "Year of Establishment" (number)
+
+**Test Cases**:
+- [ ] Leave required fields empty → errors shown on submit
+- [ ] Fill all required fields with valid data → click "Continue" → saves → redirects to `/4?applicationId=...`
+- [ ] Go back to `/3?applicationId=...` → values restored
+- [ ] Test GSTIN format validation
+- [ ] Test PAN format validation
+- [ ] Test PIN code length validation (max 6 digits)
+
+### 2.4 Step 4 — Directors / Partners (`/4`)
+- [ ] Form title: "Directors / Partners"
+- [ ] Add button visible (e.g., "Add Director" or "Add Partner")
+- [ ] Each row has: Name, Email, Contact, Designation, % Stake fields
+
+**Test Cases**:
+- [ ] Click "Add Director/Partner" → new row appears
 - [ ] Leave required fields empty → error on submit
-- [ ] Add 3 promoters with valid data → click "Next" → saves
-- [ ] Remove a promoter (if delete button exists) → saves successfully
-- [ ] Test email validation on email field
+- [ ] Add one director with valid data → click "Continue" → saves → redirects to `/5?applicationId=...`
+- [ ] Go back to `/4?applicationId=...` → previously added director data restored
+- [ ] Remove a director (if delete button exists) → saves successfully
 
-### 2.4 Step 4 — PAN Verification
-- [ ] Form title: "PAN Verification"
-- [ ] PAN input field (11 alphanumeric characters)
-- [ ] "Verify PAN" button
-
-**Test Cases**:
-- [ ] Enter invalid PAN (e.g., "123") → error "Invalid PAN format"
-- [ ] Enter valid PAN format (e.g., "AAAPA1234A") → click "Verify PAN"
-- [ ] In dev mode, PAN verification returns mock success → displays verified status
-- [ ] Click "Next" → saves
-
-### 2.5 Step 5 — GST Verification
-- [ ] Form title: "GST Verification"
-- [ ] GST input field (15 characters)
-- [ ] "Verify GST" button
-- [ ] Message: "GST verification is in mock mode"
+### 2.5 Step 5 — Projects & Experience (`/5`)
+- [ ] Form title: "Projects & Experience"
+- [ ] Fields for project details (project name, location, completion year, etc.)
 
 **Test Cases**:
-- [ ] Enter invalid GST (e.g., "123") → error "Invalid GST format"
-- [ ] Enter valid GST format (e.g., "27AABPA1234B1Z0") → click "Verify GST"
-- [ ] Mock verification succeeds → displays verified status
-- [ ] Click "Next" → saves
+- [ ] Fill project details → click "Continue" → saves
+- [ ] Go back to `/5?applicationId=...` → values restored
 
-### 2.6 Step 6 — Bank Details
-- [ ] Form title: "Bank Details"
-- [ ] Fields: Account Holder Name, Account Number, IFSC Code, Account Type (dropdown)
+### 2.6 Step 6 — Financials (`/6`)
+- [ ] Form title: "Financials"
+- [ ] Financial details fields
 
 **Test Cases**:
-- [ ] Leave fields empty → errors shown
-- [ ] Enter valid bank details → click "Next" → saves
-- [ ] Test IFSC validation (should be 11 characters, alphanumeric)
+- [ ] Fill financial data → click "Continue" → saves
+- [ ] Go back → values restored
 
-### 2.7 Step 7 — Document Upload
+### 2.7 Step 7 — Document Upload (`/7`)
 - [ ] Form title: "Document Upload"
-- [ ] Document upload cards for:
-  - PAN Card (required)
-  - GST Certificate (required)
-  - ROC/Partnership Deed (required)
-  - Code of Conduct (required)
-  - Cancelled Cheque (required)
-  - Proposer Form (optional)
-  - Seconder Form (optional)
-- [ ] Template download links at bottom
+- [ ] Document upload cards for required documents (PAN, GST, etc.)
+- [ ] Drag-drop or file picker available
 
 **Test Cases**:
-- [ ] Try to submit without uploading required documents → error "All required documents must be uploaded"
-- [ ] Upload a PDF file (max 10 MB) → file appears in the list with checkmark
+- [ ] Try to submit without uploading required documents → error shown
+- [ ] Upload a PDF file (max 10 MB) → file appears with checkmark
 - [ ] Upload multiple documents → all appear with progress
-- [ ] Click template download link → opens PDF in new tab
 - [ ] Try to upload file > 10 MB → error shown
 - [ ] Try to upload non-PDF/JPEG/PNG → error shown
-- [ ] Upload all required docs → click "Next" → saves
+- [ ] Upload all required docs → click "Continue" → saves
+
+### 2.8 Step 8 — Proposer & Seconder (`/8`)
+- [ ] Form title: "Proposer & Seconder"
+- [ ] Fields for proposer details and seconder details
+
+**Test Cases**:
+- [ ] Fill proposer and seconder info → click "Continue" → saves
+
+### 2.9 Step 9 — Compliance Declaration (`/9`)
+- [ ] Form title: "Compliance Declaration"
+- [ ] Declaration checkboxes
+
+**Test Cases**:
+- [ ] Check all declarations → click "Continue" → saves
+
+### 2.10 Step 10 — Payment Fee Breakdown (`/10`)
+- [ ] Form title: "Payment Fee Breakdown"
+- [ ] Display of fees (entrance fee, annual subscription, taxes, total)
+
+**Test Cases**:
+- [ ] Review fee breakdown → click "Continue"
+
+### 2.11 Step 11 — Review & Submit (`/11`)
+- [ ] Form title: "Review & Submit"
+- [ ] Summary of all entered information
+
+**Test Cases**:
+- [ ] Review all application data → click "Submit"
+
+### 2.12 Step 12 — Submission Confirmation (`/12`)
+- [ ] Form title: "Submission Confirmation"
+- [ ] Confirmation message with application ID
+
+**Test Cases**:
+- [ ] Confirm application submitted successfully
+- [ ] Application ID displayed for reference
 
 ### 2.8 Step 8 — Personal Details
 - [ ] Form title: "Personal Details"

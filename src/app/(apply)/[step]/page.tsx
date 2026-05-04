@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import Link from "next/link";
 import { WizardStepRail } from "@/components/wizard/WizardStepRail";
 import { Step1_MembershipFirmType } from "@/components/wizard/Step1_MembershipFirmType";
 import { Step2_ApplicantDetails } from "@/components/wizard/Step2_ApplicantDetails";
@@ -15,6 +16,7 @@ import { Step11_ReviewSubmit } from "@/components/wizard/Step11_ReviewSubmit";
 import { Step12_SubmissionConfirmation } from "@/components/wizard/Step12_SubmissionConfirmation";
 import { WIZARD_TOTAL_STEPS } from "@/lib/constants";
 import { AutoSaveIndicator } from "@/components/wizard/AutoSaveIndicator";
+import { loadDraft } from "@/services/wizard/draftPersistence";
 
 const STEP_COMPONENTS: Record<number, React.ComponentType<{ applicationId?: string }>> = {
   1: Step1_MembershipFirmType,
@@ -45,28 +47,53 @@ export default async function WizardStepPage({ params, searchParams }: Props) {
     notFound();
   }
 
+  // Check membership type to conditionally skip Step 8 (Proposer & Seconder) for non-Associate members
+  if (stepNumber === 8 && applicationId) {
+    try {
+      const draftData = await loadDraft(applicationId);
+      const step1Data = draftData[1] as { membershipType?: string } | undefined;
+      const membershipType = step1Data?.membershipType;
+
+      // Skip Step 8 for Ordinary and RERAProject membership
+      if (membershipType && membershipType !== "Associate") {
+        redirect(`/9?applicationId=${applicationId}`);
+      }
+    } catch {
+      // If we can't load draft, allow Step 8 to show
+    }
+  }
+
   const StepComponent = STEP_COMPONENTS[stepNumber];
   if (!StepComponent) notFound();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">CREDAI Pune — Membership Application</h1>
-          <AutoSaveIndicator />
-        </div>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      {/* Top bar */}
+      <div style={{ backgroundColor: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 32px", height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", cursor: "pointer" }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: "#E8601C", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14, color: "#fff" }}>C</div>
+          <span style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>CREDAI Pune</span>
+          <span style={{ color: "#d1d5db", margin: "0 4px" }}>|</span>
+          <span style={{ fontSize: 13, color: "#64748b" }}>Membership Application</span>
+        </Link>
+        <AutoSaveIndicator />
+      </div>
 
-        <div className="flex gap-8">
-          <aside className="hidden w-56 shrink-0 lg:block">
+      {/* Content */}
+      <div style={{ maxWidth: "1024px", margin: "0 auto", padding: "32px 24px", display: "flex", gap: "32px" }}>
+        {/* Sidebar */}
+        <aside style={{ width: "200px", flexShrink: 0 }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "10px", border: "1px solid #e2e8f0", padding: "16px" }}>
             <WizardStepRail currentStep={stepNumber} applicationId={applicationId} />
-          </aside>
+          </div>
+        </aside>
 
-          <main id="main-content" className="flex-1">
-            <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Loading…</div>}>
-              <StepComponent applicationId={applicationId} />
-            </Suspense>
-          </main>
-        </div>
+        {/* Main form */}
+        <main id="main-content" style={{ flex: 1, backgroundColor: "#fff", borderRadius: "10px", border: "1px solid #e2e8f0", padding: "32px" }}>
+          <Suspense fallback={<div style={{ padding: "32px 0", textAlign: "center", color: "#64748b" }}>Loading…</div>}>
+            <StepComponent applicationId={applicationId} />
+          </Suspense>
+        </main>
       </div>
     </div>
   );

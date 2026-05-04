@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
-// Global save state — updated by draft persistence service
 let globalSaveState: SaveState = "idle";
 const listeners = new Set<(state: SaveState) => void>();
 
@@ -31,18 +30,18 @@ export function AutoSaveIndicator() {
     error: "Save failed",
   };
 
-  const colors: Record<SaveState, string> = {
-    idle: "",
-    saving: "text-muted-foreground",
-    saved: "text-green-600",
-    error: "text-destructive",
+  const colorMap: Record<SaveState, string> = {
+    idle: "#64748b",
+    saving: "#64748b",
+    saved: "#16a34a",
+    error: "#dc2626",
   };
 
   return (
     <span
       role="status"
       aria-live="polite"
-      className={`text-xs transition-opacity ${colors[state]}`}
+      style={{ fontSize: "12px", color: colorMap[state] }}
     >
       {labels[state]}
     </span>

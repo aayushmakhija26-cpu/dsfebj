@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -7,7 +8,7 @@ import { step1Schema, type Step1Data } from "@/schemas/wizard";
 import { WizardStepShell } from "./WizardStepShell";
 import { REQUIRED_DOCUMENTS_BY_MEMBERSHIP } from "@/lib/constants";
 import { MEMBERSHIP_TYPES, FIRM_TYPES } from "@/lib/constants";
-import { saveDraft } from "@/services/wizard/draftPersistence";
+import { saveDraft, loadDraft } from "@/services/wizard/draftPersistence";
 
 interface Props { applicationId?: string }
 
@@ -18,38 +19,64 @@ export function Step1_MembershipFirmType({ applicationId }: Props) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
     defaultValues: { documentsAcknowledged: false },
   });
 
+  // Load draft if applicationId provided
+  useEffect(() => {
+    if (!applicationId) return;
+    loadDraft(applicationId)
+      .then((steps) => {
+        const step1Data = steps[1] as Partial<Step1Data> | undefined;
+        if (step1Data) {
+          if (step1Data.membershipType) setValue("membershipType", step1Data.membershipType);
+          if (step1Data.firmType) setValue("firmType", step1Data.firmType);
+          if (step1Data.documentsAcknowledged) setValue("documentsAcknowledged", step1Data.documentsAcknowledged);
+        }
+      })
+      .catch(() => { /* draft loading is non-critical */ });
+  }, [applicationId, setValue]);
+
   const membershipType = watch("membershipType");
   const requiredDocs = membershipType ? REQUIRED_DOCUMENTS_BY_MEMBERSHIP[membershipType] : [];
 
   async function onSubmit(data: Step1Data) {
     const appId = await saveDraft({ step: 1, data, applicationId });
-    router.push(`/apply/2?applicationId=${appId}`);
+    router.push(`/2?applicationId=${appId}`);
   }
 
   return (
     <WizardStepShell
       step={1}
       title="Membership Type & Firm Type"
-      description="Select the membership category and your firm's legal structure."
+      description="CREDAI Pune offers membership for Individual builders, Proprietorships, Partnerships/LLPs, and Companies. Select your firm's legal structure to continue."
       applicationId={applicationId}
       onNext={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
       hideBack
     >
-      <div className="space-y-1">
-        <label htmlFor="membershipType" className="block text-sm font-medium">
-          Membership Type <span className="text-destructive">*</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <label htmlFor="membershipType" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#374151", marginBottom: "6px" }}>
+          Membership Type <span style={{ color: "#ef4444" }}>*</span>
         </label>
         <select
           id="membershipType"
           aria-invalid={errors.membershipType ? "true" : undefined}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          style={{
+            width: "100%",
+            borderRadius: "6px",
+            border: errors.membershipType ? "1px solid #ef4444" : "1px solid #e2e8f0",
+            backgroundColor: errors.membershipType ? "#fef2f2" : "#fff",
+            padding: "10px 12px",
+            fontSize: "14px",
+            color: "#0f172a",
+            outline: "none",
+            cursor: "pointer",
+          }}
           {...register("membershipType")}
         >
           <option value="">Select…</option>
@@ -58,18 +85,28 @@ export function Step1_MembershipFirmType({ applicationId }: Props) {
           ))}
         </select>
         {errors.membershipType && (
-          <p role="alert" className="text-xs text-destructive">{errors.membershipType.message}</p>
+          <p role="alert" style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px" }}>{errors.membershipType.message}</p>
         )}
       </div>
 
-      <div className="space-y-1">
-        <label htmlFor="firmType" className="block text-sm font-medium">
-          Firm Type <span className="text-destructive">*</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <label htmlFor="firmType" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#374151", marginBottom: "6px" }}>
+          Firm Type <span style={{ color: "#ef4444" }}>*</span>
         </label>
         <select
           id="firmType"
           aria-invalid={errors.firmType ? "true" : undefined}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          style={{
+            width: "100%",
+            borderRadius: "6px",
+            border: errors.firmType ? "1px solid #ef4444" : "1px solid #e2e8f0",
+            backgroundColor: errors.firmType ? "#fef2f2" : "#fff",
+            padding: "10px 12px",
+            fontSize: "14px",
+            color: "#0f172a",
+            outline: "none",
+            cursor: "pointer",
+          }}
           {...register("firmType")}
         >
           <option value="">Select…</option>
@@ -78,17 +115,17 @@ export function Step1_MembershipFirmType({ applicationId }: Props) {
           ))}
         </select>
         {errors.firmType && (
-          <p role="alert" className="text-xs text-destructive">{errors.firmType.message}</p>
+          <p role="alert" style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px" }}>{errors.firmType.message}</p>
         )}
       </div>
 
       {requiredDocs && requiredDocs.length > 0 && (
-        <div className="rounded-md border border-muted bg-muted/30 p-4">
-          <p className="mb-2 text-sm font-medium">Documents you will need:</p>
-          <ul className="space-y-1">
+        <div style={{ borderRadius: "6px", border: "1px solid #e2e8f0", backgroundColor: "#f8fafc", padding: "16px" }}>
+          <p style={{ marginBottom: "8px", fontSize: "14px", fontWeight: 500, color: "#0f172a" }}>Documents you will need:</p>
+          <ul style={{ display: "flex", flexDirection: "column", gap: "4px", listStyle: "none", padding: 0, margin: 0 }}>
             {requiredDocs.map((doc) => (
-              <li key={doc} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+              <li key={doc} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "#64748b" }}>
+                <span style={{ height: "6px", width: "6px", borderRadius: "50%", backgroundColor: "#1B3A6B", flexShrink: 0 }} aria-hidden="true" />
                 {doc}
               </li>
             ))}
@@ -96,21 +133,29 @@ export function Step1_MembershipFirmType({ applicationId }: Props) {
         </div>
       )}
 
-      <div className="flex items-start gap-2">
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
         <input
           id="documentsAcknowledged"
           type="checkbox"
           aria-invalid={errors.documentsAcknowledged ? "true" : undefined}
           aria-describedby={errors.documentsAcknowledged ? "docs-ack-error" : undefined}
-          className="mt-0.5 h-4 w-4 rounded border-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          style={{
+            marginTop: "4px",
+            height: "16px",
+            width: "16px",
+            borderRadius: "4px",
+            border: "1px solid #e2e8f0",
+            cursor: "pointer",
+            accentColor: "#1B3A6B",
+          }}
           {...register("documentsAcknowledged")}
         />
-        <label htmlFor="documentsAcknowledged" className="text-sm">
+        <label htmlFor="documentsAcknowledged" style={{ fontSize: "14px", color: "#0f172a", cursor: "pointer" }}>
           I acknowledge the document requirements listed above
         </label>
       </div>
       {errors.documentsAcknowledged && (
-        <p id="docs-ack-error" role="alert" className="text-xs text-destructive">
+        <p id="docs-ack-error" role="alert" style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px" }}>
           {errors.documentsAcknowledged.message}
         </p>
       )}

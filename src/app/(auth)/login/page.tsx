@@ -167,8 +167,6 @@ export default function LoginPage() {
                   boxSizing: "border-box",
                   transition: "border-color 0.15s",
                 }}
-                onFocus={(e) => { if (!errors.email) e.currentTarget.style.borderColor = "#1B3A6B"; }}
-                onBlur={(e) => { if (!errors.email) e.currentTarget.style.borderColor = "#d1d5db"; }}
                 {...register("email")}
               />
               {errors.email && (

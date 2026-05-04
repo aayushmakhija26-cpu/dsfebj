@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { step10Schema, type Step10Data } from "@/schemas/wizard";
 import { WizardStepShell } from "./WizardStepShell";
-import { saveDraft } from "@/services/wizard/draftPersistence";
+import { saveDraft, loadDraft } from "@/services/wizard/draftPersistence";
 import { CGST_RATE_PERCENT, SGST_RATE_PERCENT, PAYMENT_CURRENCY } from "@/lib/constants";
 
 interface Props { applicationId?: string; membershipType?: string }
@@ -38,6 +40,20 @@ export function Step10_PaymentFeeBreakdown({ applicationId, membershipType = "Or
   const sgst = Math.round(subtotal * SGST_RATE_PERCENT / 100);
   const total = subtotal + cgst + sgst;
 
+  // Load draft if applicationId provided
+  useEffect(() => {
+    if (!applicationId) return;
+    loadDraft(applicationId)
+      .then((steps) => {
+        const step10Data = steps[10] as Partial<Step10Data> | undefined;
+        if (step10Data) {
+          if (step10Data.paymentMethod) setValue("paymentMethod", step10Data.paymentMethod);
+          if (step10Data.paymentInitiated !== undefined) setValue("paymentInitiated", step10Data.paymentInitiated);
+        }
+      })
+      .catch(() => { /* draft loading is non-critical */ });
+  }, [applicationId, setValue]);
+
   async function handleOnlinePayment() {
     // Online payment integration implemented in Phase 6 (T140)
     // For Phase 3, mark as initiated and proceed
@@ -45,7 +61,7 @@ export function Step10_PaymentFeeBreakdown({ applicationId, membershipType = "Or
     setValue("paymentMethod", "Online");
     const data = { paymentMethod: "Online" as const, paymentInitiated: true };
     const appId = await saveDraft({ step: 10, data, applicationId });
-    router.push(`/apply/11?applicationId=${appId}`);
+    router.push(`/11?applicationId=${appId}`);
   }
 
   async function handleOfflinePayment() {
@@ -53,7 +69,7 @@ export function Step10_PaymentFeeBreakdown({ applicationId, membershipType = "Or
     setValue("paymentMethod", "Offline");
     const data = { paymentMethod: "Offline" as const, paymentInitiated: true };
     const appId = await saveDraft({ step: 10, data, applicationId });
-    router.push(`/apply/11?applicationId=${appId}`);
+    router.push(`/11?applicationId=${appId}`);
   }
 
   function formatAmount(amount: number) {
@@ -68,64 +84,64 @@ export function Step10_PaymentFeeBreakdown({ applicationId, membershipType = "Or
       applicationId={applicationId}
       isSubmitting={isSubmitting}
     >
-      <div className="rounded-md border border-muted">
-        <table className="w-full text-sm">
+      <div style={{borderRadius:"6px",border:"1px solid #e2e8f0"}}>
+        <table style={{width:"100%",fontSize:"14px"}}>
           <thead>
-            <tr className="border-b bg-muted/30">
-              <th className="px-4 py-2 text-left font-medium">Fee Component</th>
-              <th className="px-4 py-2 text-right font-medium">Amount</th>
+            <tr style={{borderBottom:"1px solid #e2e8f0",backgroundColor:"#f1f5f9"}}>
+              <th style={{padding:"8px 16px",textAlign:"left",fontWeight:600}}>Fee Component</th>
+              <th style={{padding:"8px 16px",textAlign:"right",fontWeight:600}}>Amount</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b">
-              <td className="px-4 py-2">Entrance Fee</td>
-              <td className="px-4 py-2 text-right">{formatAmount(fees.entrance)}</td>
+            <tr style={{borderBottom:"1px solid #e2e8f0"}}>
+              <td style={{padding:"8px 16px"}}>Entrance Fee</td>
+              <td style={{padding:"8px 16px",textAlign:"right"}}>{formatAmount(fees.entrance)}</td>
             </tr>
-            <tr className="border-b">
-              <td className="px-4 py-2">Annual Subscription</td>
-              <td className="px-4 py-2 text-right">{formatAmount(fees.annual)}</td>
+            <tr style={{borderBottom:"1px solid #e2e8f0"}}>
+              <td style={{padding:"8px 16px"}}>Annual Subscription</td>
+              <td style={{padding:"8px 16px",textAlign:"right"}}>{formatAmount(fees.annual)}</td>
             </tr>
-            <tr className="border-b">
-              <td className="px-4 py-2 text-muted-foreground">CGST ({CGST_RATE_PERCENT}%)</td>
-              <td className="px-4 py-2 text-right text-muted-foreground">{formatAmount(cgst)}</td>
+            <tr style={{borderBottom:"1px solid #e2e8f0"}}>
+              <td style={{padding:"8px 16px",color:"#64748b"}}>CGST ({CGST_RATE_PERCENT}%)</td>
+              <td style={{padding:"8px 16px",textAlign:"right",color:"#64748b"}}>{formatAmount(cgst)}</td>
             </tr>
-            <tr className="border-b">
-              <td className="px-4 py-2 text-muted-foreground">SGST ({SGST_RATE_PERCENT}%)</td>
-              <td className="px-4 py-2 text-right text-muted-foreground">{formatAmount(sgst)}</td>
+            <tr style={{borderBottom:"1px solid #e2e8f0"}}>
+              <td style={{padding:"8px 16px",color:"#64748b"}}>SGST ({SGST_RATE_PERCENT}%)</td>
+              <td style={{padding:"8px 16px",textAlign:"right",color:"#64748b"}}>{formatAmount(sgst)}</td>
             </tr>
             <tr>
-              <td className="px-4 py-3 font-semibold">Total</td>
-              <td className="px-4 py-3 text-right font-semibold">{formatAmount(total)}</td>
+              <td style={{padding:"12px 16px",fontWeight:600}}>Total</td>
+              <td style={{padding:"12px 16px",textAlign:"right",fontWeight:600}}>{formatAmount(total)}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px"}}>
         <button
           type="button"
           onClick={handleOnlinePayment}
           disabled={isSubmitting}
-          className="rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          style={{borderRadius:"6px",backgroundColor:"#1B3A6B",color:"#fff",padding:"12px 16px",fontSize:"14px",fontWeight:600,border:"none",cursor:isSubmitting?"not-allowed":"pointer",opacity:isSubmitting?0.5:1}}
         >
           Pay Online
-          <span className="block text-xs font-normal opacity-80">Razorpay / Cashfree</span>
+          <span style={{display:"block",fontSize:"12px",fontWeight:400,opacity:0.8}}>Razorpay / Cashfree</span>
         </button>
         <button
           type="button"
           onClick={handleOfflinePayment}
           disabled={isSubmitting}
-          className="rounded-md border border-input px-4 py-3 text-sm font-medium hover:bg-muted disabled:opacity-50"
+          style={{borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#fff",color:"#0f172a",padding:"12px 16px",fontSize:"14px",fontWeight:600,cursor:isSubmitting?"not-allowed":"pointer",opacity:isSubmitting?0.5:1}}
         >
           Pay Offline
-          <span className="block text-xs font-normal text-muted-foreground">Cheque / DD / NEFT / Cash</span>
+          <span style={{display:"block",fontSize:"12px",fontWeight:400,color:"#64748b"}}>Cheque / DD / NEFT / Cash</span>
         </button>
       </div>
 
       {paymentMethod === "Offline" && (
-        <div className="rounded-md border border-muted bg-muted/20 p-3 text-sm">
-          <p className="font-medium">Offline Payment Instructions</p>
-          <p className="mt-1 text-muted-foreground">
+        <div style={{borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#f8fafc",padding:"12px",fontSize:"14px"}}>
+          <p style={{fontWeight:600,color:"#0f172a",margin:"0 0 8px 0"}}>Offline Payment Instructions</p>
+          <p style={{color:"#64748b",margin:"8px 0"}}>
             Please submit your payment (Cheque / DD / NEFT / Cash) to the CREDAI Pune office. A Payment Officer will record and reconcile your payment. Your application will be processed once payment is confirmed.
           </p>
         </div>

@@ -72,8 +72,8 @@ function VerifyPageInner() {
         return;
       }
 
-      // Step 3: Navigate to wizard
-      router.replace("/apply/1");
+      // Step 3: Navigate to dashboard
+      router.replace("/dashboard");
     } catch (err) {
       console.error("Verify error:", err);
       setServerError("Network error. Please try again.");

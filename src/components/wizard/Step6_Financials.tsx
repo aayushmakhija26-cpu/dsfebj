@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { step6Schema, type Step6Data } from "@/schemas/wizard";
 import { WizardStepShell } from "./WizardStepShell";
-import { saveDraft } from "@/services/wizard/draftPersistence";
+import { saveDraft, loadDraft } from "@/services/wizard/draftPersistence";
 
 interface Props { applicationId?: string }
 
@@ -15,12 +17,28 @@ export function Step6_Financials({ applicationId }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Step6Data>({ resolver: zodResolver(step6Schema) });
 
+  // Load draft if applicationId provided
+  useEffect(() => {
+    if (!applicationId) return;
+    loadDraft(applicationId)
+      .then((steps) => {
+        const step6Data = steps[6] as Partial<Step6Data> | undefined;
+        if (step6Data) {
+          Object.entries(step6Data).forEach(([key, value]) => {
+            setValue(key as keyof Step6Data, value);
+          });
+        }
+      })
+      .catch(() => { /* draft loading is non-critical */ });
+  }, [applicationId, setValue]);
+
   async function onSubmit(data: Step6Data) {
     const appId = await saveDraft({ step: 6, data, applicationId });
-    router.push(`/apply/7?applicationId=${appId}`);
+    router.push(`/7?applicationId=${appId}`);
   }
 
   return (
@@ -32,25 +50,25 @@ export function Step6_Financials({ applicationId }: Props) {
       onNext={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
     >
-      <div className="grid grid-cols-2 gap-4">
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px"}}>
         <Field label="Annual Turnover (₹)" id="annualTurnover" error={errors.annualTurnover?.message} required>
-          <input id="annualTurnover" type="number" min={0} step={1} className="field-input" aria-invalid={errors.annualTurnover ? "true" : undefined} {...register("annualTurnover", { valueAsNumber: true })} />
+          <input id="annualTurnover" type="number" min={0} step={1} style={{width:"100%",borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#fff",padding:"10px 12px",fontSize:"14px",color:"#0f172a",outline:"none"}} aria-invalid={errors.annualTurnover ? "true" : undefined} {...register("annualTurnover", { valueAsNumber: true })} />
         </Field>
         <Field label="Financial Year" id="financialYear" error={errors.financialYear?.message} required>
-          <input id="financialYear" type="text" placeholder="2023-24" className="field-input" aria-invalid={errors.financialYear ? "true" : undefined} {...register("financialYear")} />
+          <input id="financialYear" type="text" placeholder="2023-24" style={{width:"100%",borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#fff",padding:"10px 12px",fontSize:"14px",color:"#0f172a",outline:"none"}} aria-invalid={errors.financialYear ? "true" : undefined} {...register("financialYear")} />
         </Field>
       </div>
 
       <Field label="Bank Account Number" id="bankAccountNumber" error={errors.bankAccountNumber?.message} required>
-        <input id="bankAccountNumber" type="text" className="field-input font-mono" aria-invalid={errors.bankAccountNumber ? "true" : undefined} {...register("bankAccountNumber")} />
+        <input id="bankAccountNumber" type="text" style={{width:"100%",borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#fff",padding:"10px 12px",fontSize:"14px",color:"#0f172a",outline:"none"}} aria-invalid={errors.bankAccountNumber ? "true" : undefined} {...register("bankAccountNumber")} />
       </Field>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px"}}>
         <Field label="Bank Name" id="bankName" error={errors.bankName?.message} required>
-          <input id="bankName" type="text" className="field-input" aria-invalid={errors.bankName ? "true" : undefined} {...register("bankName")} />
+          <input id="bankName" type="text" style={{width:"100%",borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#fff",padding:"10px 12px",fontSize:"14px",color:"#0f172a",outline:"none"}} aria-invalid={errors.bankName ? "true" : undefined} {...register("bankName")} />
         </Field>
         <Field label="IFSC Code" id="bankIFSC" error={errors.bankIFSC?.message} required>
-          <input id="bankIFSC" type="text" className="field-input font-mono uppercase" placeholder="SBIN0000001" aria-invalid={errors.bankIFSC ? "true" : undefined} {...register("bankIFSC")} />
+          <input id="bankIFSC" type="text" style={{width:"100%",borderRadius:"6px",border:"1px solid #e2e8f0",backgroundColor:"#fff",padding:"10px 12px",fontSize:"14px",color:"#0f172a",outline:"none"}} placeholder="SBIN0000001" aria-invalid={errors.bankIFSC ? "true" : undefined} {...register("bankIFSC")} />
         </Field>
       </div>
 
@@ -63,10 +81,10 @@ export function Step6_Financials({ applicationId }: Props) {
 
 function Field({ label, id, error, required, children }: { label: string; id: string; error?: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-medium">{label}{required && <span className="ml-1 text-destructive">*</span>}</label>
+    <div style={{display:"flex",flexDirection:"column",gap:"4px"}}>
+      <label htmlFor={id} style={{display:"block",fontSize:"14px",fontWeight:500,color:"#374151",marginBottom:"6px"}}>{label}{required && <span style={{marginLeft:"4px",color:"#ef4444"}}>*</span>}</label>
       {children}
-      {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
+      {error && <p role="alert" style={{fontSize:"12px",color:"#ef4444"}}>{error}</p>}
     </div>
   );
 }

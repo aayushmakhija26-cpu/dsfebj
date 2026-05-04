@@ -1,11 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { step2Schema, type Step2Data } from "@/schemas/wizard";
 import { WizardStepShell } from "./WizardStepShell";
-import { saveDraft } from "@/services/wizard/draftPersistence";
+import { saveDraft, loadDraft } from "@/services/wizard/draftPersistence";
 
 interface Props { applicationId?: string }
 
@@ -15,12 +16,28 @@ export function Step2_ApplicantDetails({ applicationId }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Step2Data>({ resolver: zodResolver(step2Schema) });
 
+  // Load draft if applicationId provided
+  useEffect(() => {
+    if (!applicationId) return;
+    loadDraft(applicationId)
+      .then((steps) => {
+        const step2Data = steps[2] as Partial<Step2Data> | undefined;
+        if (step2Data) {
+          Object.entries(step2Data).forEach(([key, value]) => {
+            setValue(key as keyof Step2Data, value);
+          });
+        }
+      })
+      .catch(() => { /* draft loading is non-critical */ });
+  }, [applicationId, setValue]);
+
   async function onSubmit(data: Step2Data) {
     const appId = await saveDraft({ step: 2, data, applicationId });
-    router.push(`/apply/3?applicationId=${appId}`);
+    router.push(`/3?applicationId=${appId}`);
   }
 
   return (
@@ -38,7 +55,16 @@ export function Step2_ApplicantDetails({ applicationId }: Props) {
           type="text"
           autoComplete="name"
           aria-invalid={errors.applicantName ? "true" : undefined}
-          className="field-input"
+          style={{
+            width: "100%",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            padding: "10px 12px",
+            fontSize: "14px",
+            color: "#0f172a",
+            outline: "none",
+          }}
           {...register("applicantName")}
         />
       </Field>
@@ -48,7 +74,16 @@ export function Step2_ApplicantDetails({ applicationId }: Props) {
           id="designation"
           type="text"
           aria-invalid={errors.designation ? "true" : undefined}
-          className="field-input"
+          style={{
+            width: "100%",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            padding: "10px 12px",
+            fontSize: "14px",
+            color: "#0f172a",
+            outline: "none",
+          }}
           {...register("designation")}
         />
       </Field>
@@ -60,7 +95,16 @@ export function Step2_ApplicantDetails({ applicationId }: Props) {
           autoComplete="tel"
           placeholder="+91XXXXXXXXXX"
           aria-invalid={errors.contactPhone ? "true" : undefined}
-          className="field-input"
+          style={{
+            width: "100%",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            padding: "10px 12px",
+            fontSize: "14px",
+            color: "#0f172a",
+            outline: "none",
+          }}
           {...register("contactPhone")}
         />
       </Field>
@@ -71,7 +115,16 @@ export function Step2_ApplicantDetails({ applicationId }: Props) {
           type="email"
           autoComplete="email"
           aria-invalid={errors.contactEmail ? "true" : undefined}
-          className="field-input"
+          style={{
+            width: "100%",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            padding: "10px 12px",
+            fontSize: "14px",
+            color: "#0f172a",
+            outline: "none",
+          }}
           {...register("contactEmail")}
         />
       </Field>
@@ -93,14 +146,14 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-medium">
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+      <label htmlFor={id} style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#374151", marginBottom: "6px" }}>
         {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
+        {required && <span style={{ marginLeft: "4px", color: "#ef4444" }}>*</span>}
       </label>
       {children}
       {error && (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" style={{ fontSize: "12px", color: "#ef4444" }}>
           {error}
         </p>
       )}

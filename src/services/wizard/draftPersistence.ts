@@ -58,7 +58,14 @@ export function scheduleAutoSave(params: SaveDraftParams): void {
 
 export async function loadDraft(applicationId: string): Promise<Record<number, Record<string, unknown>>> {
   const res = await fetch(`/api/wizard/draft?applicationId=${applicationId}`);
-  const json = (await res.json()) as { steps?: Record<number, Record<string, unknown>>; error?: string };
+  const json = (await res.json()) as { steps?: Record<number, Record<string, unknown>>; applicationStatus?: string; error?: string };
   if (!res.ok) throw new Error(json.error ?? "Failed to load draft");
   return json.steps ?? {};
+}
+
+export async function loadDraftWithStatus(applicationId: string): Promise<{ steps: Record<number, Record<string, unknown>>; status?: string }> {
+  const res = await fetch(`/api/wizard/draft?applicationId=${applicationId}`);
+  const json = (await res.json()) as { steps?: Record<number, Record<string, unknown>>; applicationStatus?: string; error?: string };
+  if (!res.ok) throw new Error(json.error ?? "Failed to load draft");
+  return { steps: json.steps ?? {}, status: json.applicationStatus };
 }
