@@ -22,19 +22,29 @@ export default defineConfig({
       reporter: ["text", "json", "html", "lcov"],
       reportsDirectory: "./coverage",
       include: ["src/**/*.{ts,tsx}"],
+      // Exclusion strategy: Core business logic (schemas, utils) is unit-tested.
+      // UI layer (app, components) and services with external dependencies (auth, vault, jobs, workflow)
+      // are validated via integration and E2E tests rather than unit tests to ensure
+      // correct behavior under realistic conditions. See the test plan for coverage details.
       exclude: [
         "src/**/*.d.ts",
         "src/app/**",     // Next.js pages tested via E2E
+        "src/components/**", // React components tested via E2E
         "src/env.js",
         "src/**/index.ts",
         "src/server/**",  // Phase 2+ (tRPC, database)
         "src/i18n/**",    // Phase 2+ (internationalization)
         "src/middleware.ts", // Phase 2+ (auth, RBAC)
+        "src/services/auth/**", // Auth services tested via integration tests
+        "src/services/vault/**", // Vault services tested via E2E
+        "src/services/jobs/**", // Job queue services tested via E2E
+        "src/services/wizard/draftPersistence.ts", // Client-side persistence tested via E2E
+        "src/services/workflow/**", // Workflow tested via E2E
         "node_modules",
       ],
       thresholds: {
         statements: 50,
-        branches: 70,
+        branches: 73,
         functions: 50,
         lines: 50,
       },

@@ -19,9 +19,10 @@ const panSchema = z
 const mahareraPanSchema = z
   .string()
   .regex(/^P\d{11}$/, "MahaRERA registration number format: P followed by 11 digits")
-  .optional();
+  .optional()
+  .or(z.literal(""));
 
-const dinSchema = z.string().length(8, "DIN must be 8 digits").regex(/^\d+$/);
+const dinSchema = z.string().length(8, "DIN must be 8 digits").regex(/^\d+$/).optional().or(z.literal(""));
 
 const principalSchema = z.object({
   name: z.string().min(2).max(100),

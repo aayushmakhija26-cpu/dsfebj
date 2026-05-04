@@ -3,6 +3,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "./db";
+import { verifyOTP } from "@/services/auth/otp";
 
 // Session/JWT type extensions
 declare module "next-auth" {
@@ -54,7 +55,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
-    // Applicant OTP provider re-added in Phase 3 with email queue implementation
+    // Applicant authentication via email OTP
+    CredentialsProvider({
+      id: "applicant-otp",
+      name: "OTP",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        code: { label: "OTP Code", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.code) return null;
+
+        const result = await verifyOTP(
+          credentials.email as string,
+          credentials.code as string,
+        );
+
+        if (!result.success || !result.userId) return null;
+
+        const user = await db.user.findUnique({
+          where: { id: result.userId },
+          select: { id: true, email: true, userType: true },
+        });
+
+        if (!user) return null;
+
+        // Clean up OTP token after successful sign-in
+        await db.verificationToken.deleteMany({
+          where: { identifier: `otp:${credentials.email}` },
+        });
+
+        return {
+          id: user.id,
+          email: user.email,
+          userType: user.userType,
+          role: undefined,
+        };
+      },
+    }),
   ],
 
   session: {
@@ -82,7 +120,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   pages: {
     signIn: "/login",
-    error: "/login",
   },
 
   secret: process.env.NEXTAUTH_SECRET,

@@ -85,6 +85,24 @@
 
   /* Skip navigation link for screen readers */
   .skip-nav {
-    @apply absolute -top-full left-0 z-50 bg-primary px-4 py-2 text-primary-foreground focus:top-0;
+    position: fixed;
+    top: -100%;
+    left: 0;
+    z-index: 9999;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 0.5rem 1rem;
+    transition: top 0.2s ease-in-out;
+  }
+
+  .skip-nav:focus {
+    top: 0;
+  }
+}
+
+@layer components {
+  /* Shared form field input style used across wizard steps */
+  .field-input {
+    @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
   }
 }

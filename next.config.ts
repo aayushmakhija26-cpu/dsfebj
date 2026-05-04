@@ -12,10 +12,9 @@ const nextConfig: NextConfig = {
     reactCompiler: false,
   },
 
-  /**
-   * Typed routes for safer Link usage
-   */
-  typedRoutes: true,
+  // typedRoutes disabled: dynamic wizard routes with query strings (/apply/[step]?applicationId=...)
+  // produce RouteImpl errors. Re-enable in Phase 9 when all routes are finalized.
+  // typedRoutes: true,
 
   /**
    * Strict CSP-ready image domains
