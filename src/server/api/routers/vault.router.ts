@@ -6,6 +6,10 @@ import type { TRPCContext } from "../trpc";
 import { logToAudit } from "./trpc-utils";
 
 async function assertApplicationOwner(ctx: TRPCContext, applicationId: string) {
+  if (!ctx.session?.user?.id) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
   const application = await ctx.db.application.findUnique({
     where: { id: applicationId },
     select: { applicantId: true },
@@ -101,11 +105,11 @@ export const vaultRouter = createTRPCRouter({
       });
 
       await logToAudit(ctx, {
-        eventType: "DocumentSuperseded",
+        eventType: "DocumentUploaded",
         actorId: ctx.session.user.id,
         actorRole: "Applicant",
         resourceType: "Document",
-        resourceId: existing.id,
+        resourceId: newDoc.id,
         ipAddress: ctx.req.headers.get("x-forwarded-for") ?? undefined,
       });
 
